@@ -1,0 +1,697 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="FF Stats">
+<title>Statistiky Sezóna 2026</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1a1a1a;min-height:100vh;}
+.app{max-width:480px;margin:0 auto;padding:12px;}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:12px 16px;background:#fff;border-radius:14px;}
+.topbar h1{font-size:18px;font-weight:600;color:#1a1a1a;}
+.drive-badge{font-size:13px;background:#e8f0fe;color:#1a56db;padding:5px 12px;border-radius:999px;font-weight:600;}
+
+.tabs{display:flex;gap:5px;margin-bottom:12px;background:#fff;padding:6px;border-radius:14px;}
+.tab{flex:1;padding:10px 4px;border:none;border-radius:10px;background:transparent;font-size:14px;font-weight:600;color:#888;cursor:pointer;transition:all 0.15s;}
+.tab.active{background:#1a56db;color:#fff;}
+
+.section{display:none;}
+.section.active{display:block;}
+
+.add-row{display:flex;gap:8px;margin-bottom:10px;}
+.add-row input{flex:1;height:44px;border:1.5px solid #e0e0e0;border-radius:12px;padding:0 14px;font-size:15px;background:#fff;color:#1a1a1a;}
+.add-row input:focus{outline:none;border-color:#1a56db;}
+.add-row button{height:44px;padding:0 18px;border:none;border-radius:12px;background:#1a56db;color:#fff;font-size:15px;font-weight:600;cursor:pointer;}
+
+.undo-row{display:flex;justify-content:flex-end;margin-bottom:8px;}
+.undo-btn{padding:7px 16px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#555;}
+
+.pending-bar{border-radius:12px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
+.pending-bar.yellow{background:#fffbea;border:1.5px solid #f6c90e;}
+.pending-bar.yellow span{color:#7a5c00;}
+.pending-bar.yellow button{color:#7a5c00;}
+.pending-bar.green{background:#e6f9ee;border:1.5px solid #6fcf97;}
+.pending-bar.green span{color:#0a7c3e;}
+.pending-bar.green button{color:#0a7c3e;}
+.pending-bar span{font-size:13px;font-weight:600;}
+.pending-cancel{background:none;border:none;font-size:13px;cursor:pointer;font-weight:600;}
+
+.confirm-bar{background:#e6f9ee;border:1.5px solid #6fcf97;border-radius:12px;padding:12px 14px;margin-bottom:10px;}
+.confirm-bar-title{font-size:13px;color:#0a7c3e;font-weight:600;margin-bottom:10px;}
+.confirm-btns{display:flex;gap:8px;}
+.confirm-btn{flex:1;padding:14px 8px;border:none;border-radius:12px;background:#0a7c3e;color:#fff;font-size:20px;font-weight:700;cursor:pointer;transition:transform 0.1s;}
+.confirm-btn:active{transform:scale(0.93);}
+.confirm-skip{flex:1;padding:14px 8px;border:1.5px solid #ccc;border-radius:12px;background:#fff;color:#888;font-size:14px;font-weight:600;cursor:pointer;}
+
+.player-block{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;}
+.pb-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.pb-name{font-size:16px;font-weight:700;color:#1a1a1a;}
+.pb-del{background:none;border:none;color:#ccc;font-size:20px;cursor:pointer;padding:0 2px;line-height:1;}
+
+.stat-grid{display:grid;gap:7px;}
+.stat-btn{border:none;border-radius:12px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;background:#f0f4ff;transition:transform 0.1s;}
+.stat-btn:active{transform:scale(0.93);}
+.stat-btn .val{font-size:26px;font-weight:700;color:#1a1a1a;line-height:1;}
+.stat-btn .lbl{font-size:11px;font-weight:600;color:#555;text-align:center;line-height:1.2;}
+.stat-btn .hint{font-size:9px;color:#1a56db;margin-top:1px;}
+.stat-btn.td-btn{background:#e6f9ee;}
+.stat-btn.td-btn .val,.stat-btn.td-btn .lbl{color:#0a7c3e;}
+.stat-btn.neg-btn{background:#fef0f0;}
+.stat-btn.neg-btn .val,.stat-btn.neg-btn .lbl{color:#c0392b;}
+.stat-btn.pass-btn{background:#e8f0fe;}
+.stat-btn.pass-btn .val,.stat-btn.pass-btn .lbl,.stat-btn.pass-btn .hint{color:#1a56db;}
+.stat-info{border-radius:12px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;background:#f5f5f5;}
+.stat-info .val{font-size:26px;font-weight:700;color:#aaa;line-height:1;}
+.stat-info .lbl{font-size:11px;font-weight:600;color:#bbb;text-align:center;line-height:1.2;}
+
+.empty{color:#aaa;font-size:15px;text-align:center;padding:28px 0;}
+
+.summary-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.summary-top span{font-size:14px;color:#888;font-weight:500;}
+.new-drive-btn{padding:10px 18px;border-radius:12px;border:none;background:#0a7c3e;color:#fff;font-size:14px;font-weight:700;cursor:pointer;}
+.new-drive-btn:active{transform:scale(0.97);}
+
+.player-card{background:#fff;border-radius:14px;padding:14px;margin-bottom:10px;}
+.pc-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.pc-name{font-size:16px;font-weight:600;color:#1a1a1a;}
+.pc-pos{font-size:11px;font-weight:600;background:#f0f4ff;color:#1a56db;padding:3px 10px;border-radius:999px;}
+.mini-stats{display:flex;flex-wrap:wrap;gap:7px;}
+.ms{display:flex;flex-direction:column;align-items:center;min-width:46px;background:#f5f5f5;border-radius:10px;padding:6px 8px;}
+.ms-v{font-size:17px;font-weight:700;color:#1a1a1a;}
+.ms-l{font-size:10px;color:#888;font-weight:600;}
+
+.reset-row{text-align:center;margin-top:16px;padding-bottom:20px;}
+.reset-btn{padding:9px 22px;border-radius:10px;border:1.5px solid #f0c0c0;background:#fff;color:#c0392b;font-size:13px;font-weight:600;cursor:pointer;}
+.send-btn{padding:11px 28px;border-radius:12px;border:none;background:#0a7c3e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:8px;}
+.send-btn:active{transform:scale(0.97);}
+.send-btn:disabled{background:#aaa;cursor:not-allowed;}
+@media print {
+  body { background: #fff !important; }
+  .app { max-width: 100% !important; padding: 0 !important; }
+  .tabs, .section:not(#tab-summary), .add-row, .undo-row,
+  .pending-bar, .confirm-bar, .summary-top, .reset-row,
+  .export-btn-row, .send-btn { display: none !important; }
+  #tab-summary { display: block !important; }
+  .player-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; margin-bottom: 8px; }
+  .print-header { display: block !important; }
+  .analytics-page { display: block !important; page-break-before: always; }
+  .an-table { break-inside: auto; }
+  .an-table tr { break-inside: avoid; }
+}
+.analytics-page { display: block; }
+.analytics-header { margin-bottom: 16px; border-bottom: 2px solid #1a1a1a; padding-bottom: 10px; }
+.analytics-header h2 { font-size: 18px; font-weight: 700; }
+.analytics-header p { font-size: 12px; color: #888; margin-top: 3px; }
+.an-section { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin: 14px 0 6px; }
+.an-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; }
+.an-table th { background: #f5f5f5; padding: 7px 8px; text-align: left; font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; border-bottom: 1px solid #ddd; }
+.an-table td { padding: 7px 8px; border-bottom: 0.5px solid #eee; }
+.an-name { font-weight: 700; }
+.an-good { color: #0a7c3e; font-weight: 700; }
+.an-bad { color: #c0392b; font-weight: 700; }
+.an-warn { color: #b8860b; font-weight: 700; }
+.print-header { display: none; padding: 0 0 12px; border-bottom: 2px solid #1a1a1a; margin-bottom: 14px; }
+.print-header h2 { font-size: 20px; font-weight: 700; color: #1a1a1a; }
+.print-header p { font-size: 13px; color: #888; margin-top: 3px; }
+.export-btn-row { text-align: center; margin: 14px 0 4px; }
+.export-btn { padding: 11px 28px; border-radius: 12px; border: none; background: #1a56db; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
+.export-btn:active { transform: scale(0.97); }
+
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <h1>Statistiky Sezóna 2026</h1>
+    <span class="drive-badge" id="drive-badge">Drive 1</span>
+  </div>
+  <div class="tabs">
+    <button class="tab active" id="tab-btn-qb" onclick="switchTab('qb',this)">QB</button>
+    <button class="tab" id="tab-btn-wr" onclick="switchTab('wr',this)">WR</button>
+    <button class="tab" id="tab-btn-def" onclick="switchTab('def',this)">Obrana</button>
+    <button class="tab" id="tab-btn-summary" onclick="switchTab('summary',this)">Přehled</button>
+  </div>
+  <div class="section active" id="tab-qb"></div>
+  <div class="section" id="tab-wr"></div>
+  <div class="section" id="tab-def"></div>
+  <div class="section" id="tab-summary"></div>
+</div>
+
+<script>
+const POS={
+  qb:{label:'QB',stats:[
+    {key:'pass', label:'Pass',    cls:'pass-btn', isPass:true},
+    {key:'comp', label:'Komplet.',cls:'',          readonly:true},
+    {key:'incomp',label:'Nekomp.',cls:'neg-btn',   readonly:true},
+    {key:'td',   label:'TD',     cls:'td-btn',    isTD:true},
+    {key:'int',  label:'INT',    cls:'neg-btn',   readonly:true},
+    {key:'sack', label:'Sack',   cls:'neg-btn'},
+    {key:'safety',label:'Safety',cls:'neg-btn'}
+  ]},
+  wr:{label:'WR',stats:[
+    {key:'catch',   label:'Kompletní', cls:'td-btn', passResult:'comp'},
+    {key:'drop',    label:'Drop',      cls:'neg-btn',passResult:'incomp'},
+    {key:'td',      label:'TD',        cls:'td-btn',  readonly:true},
+    {key:'confirm1',label:'Potvr. 1b', cls:'td-btn',  readonly:true},
+    {key:'confirm2',label:'Potvr. 2b', cls:'td-btn',  readonly:true},
+    {key:'points',  label:'Body',      cls:'td-btn',  readonly:true}
+  ]},
+  def:{label:'Obrana',stats:[
+    {key:'flagpull',label:'Flag pull',cls:''},
+    {key:'int',    label:'INT',      cls:'td-btn'},
+    {key:'inttd',  label:'INT TD',   cls:'td-btn'},
+    {key:'brkup',  label:'Brkup',    cls:''},
+    {key:'sack',   label:'Sack',     cls:'td-btn'},
+    {key:'safety', label:'Safety',   cls:'td-btn'}
+  ]}
+};
+
+// ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
+const API_URL = "https://script.google.com/macros/s/AKfycbzcFlGGFKiMEEV_j8foT-8cBk_DrURvsKNouPRqOCxdqfFdEDMkg61YaUfIdneoASucIw/exec";
+
+let data={players:[],drive:1,gameNumber:1,lastQB:null};
+try{const s=localStorage.getItem('ffv8');if(s)data=JSON.parse(s);}catch(e){}
+let history=[];
+let currentTab='qb';
+
+// Stavy průchodu
+// pendingPass:    {qbName}          — QB hodil pass, čekáme na WR výsledek
+// pendingTD:      {qbName, wrName}  — WR zachytil, čekáme na QB TD tlačítko
+// pendingConfirm: {qbName, wrName}  — QB zmáčkl TD, čekáme na potvrzení
+let pendingPass=null;
+let pendingTD=null;
+let pendingConfirm=null;
+
+function save(){try{localStorage.setItem('ffv8',JSON.stringify(data));}catch(e){}}
+function getPlayer(pos,name){return data.players.find(p=>p.pos===pos&&p.name===name);}
+function emptyStats(pos){const o={};POS[pos].stats.forEach(s=>o[s.key]=0);return o;}
+
+function doIncrement(pos,name,key,amount){
+  amount=amount||1;
+  const p=getPlayer(pos,name);if(!p)return;
+  p.stats[key]=(p.stats[key]||0)+amount;
+  const di=data.drive-1;
+  if(!p.drives)p.drives=[emptyStats(pos)];
+  while(p.drives.length<=di)p.drives.push(emptyStats(pos));
+  p.drives[di][key]=(p.drives[di][key]||0)+amount;
+}
+function doDecrement(pos,name,key,amount){
+  amount=amount||1;
+  const p=getPlayer(pos,name);if(!p)return;
+  p.stats[key]=Math.max(0,(p.stats[key]||0)-amount);
+  const di=data.drive-1;
+  if(p.drives&&p.drives[di])p.drives[di][key]=Math.max(0,(p.drives[di][key]||0)-amount);
+}
+
+function renderTab(pos){
+  const el=document.getElementById('tab-'+pos);
+  const players=data.players.filter(p=>p.pos===pos);
+  const count=POS[pos].stats.length;
+  const cols=count<=4?'repeat('+count+',1fr)':count===5?'repeat(5,1fr)':'repeat(3,1fr)';
+
+  let html=`<div class="add-row">
+    <input type="text" id="inp-${pos}" placeholder="Přidat hráče..." autocomplete="off" onkeydown="if(event.key==='Enter')addPlayer('${pos}')" />
+    <button onclick="addPlayer('${pos}')">Přidat</button>
+  </div>`;
+
+  // Bannery podle stavu
+  if(pos==='wr'&&pendingPass&&!pendingTD&&!pendingConfirm){
+    html+=`<div class="pending-bar yellow">
+      <span>Pass od: ${pendingPass.qbName} — vyber výsledek</span>
+      <button class="pending-cancel" onclick="cancelPass()">Zrušit</button>
+    </div>`;
+  }
+  if(pos==='qb'&&pendingTD){
+    html+=`<div class="pending-bar green">
+      <span>Zachycení: ${pendingTD.wrName} — zmáčkni TD nebo jiný výsledek</span>
+      <button class="pending-cancel" onclick="cancelTD()">Zrušit</button>
+    </div>`;
+  }
+  if(pos==='qb'&&pendingConfirm){
+    if(!pendingConfirm.pts){
+      html+=`<div class="confirm-bar">
+        <div class="confirm-bar-title">Potvrzení po TD — kolik bodů?</div>
+        <div class="confirm-btns">
+          <button class="confirm-btn" onclick="resolveConfirmPts(1)">+1</button>
+          <button class="confirm-btn" onclick="resolveConfirmPts(2)">+2</button>
+          <button class="confirm-skip" onclick="resolveConfirm(0,null)">Bez potvrzení</button>
+        </div>
+      </div>`;
+    } else {
+      const wrPlayers=data.players.filter(p=>p.pos==='wr');
+      html+=`<div class="confirm-bar">
+        <div class="confirm-bar-title">Kdo skóroval potvrzení (+${pendingConfirm.pts})?</div>
+        <div class="confirm-btns" style="flex-direction:column;gap:7px;">
+          ${wrPlayers.map(p=>'<button class="confirm-btn" style="font-size:15px;padding:12px 8px;" onclick="resolveConfirm('+pendingConfirm.pts+',&#39;'+p.name.replace(/'/g,'&#39;')+'&#39;)">'+p.name+'</button>').join('')}
+        </div>
+      </div>`;
+    }
+  }
+
+  // INT tlačítko a Nekomp jen na WR záložce
+  if(pos==='wr'){
+    html+=`<div style="display:flex;gap:8px;margin-bottom:10px;">
+      ${pendingPass ? `<button class="stat-btn neg-btn" style="flex:1;border-radius:12px;padding:12px;" onclick="handleNoTarget()">
+        <span class="val" style="font-size:18px;">—</span>
+        <span class="lbl">Nekomp.<br>minul WR</span>
+      </button>` : '<div style="flex:1"></div>'}
+      <button class="stat-btn neg-btn" style="flex:1;border-radius:12px;padding:12px;" onclick="handleWrInt()">
+        <span class="val">${(()=>{const qb=data.players.find(p=>p.pos==='qb'&&p.name===data.lastQB);return qb?(qb.stats.int||0):0;})()} </span>
+        <span class="lbl">INT → QB</span>
+      </button>
+    </div>`;
+  }
+
+  if(players.length){
+    html+=`<div class="undo-row"><button class="undo-btn" onclick="undoLast()">↩ Zpět</button></div>`;
+  } else {
+    html+=`<div class="empty">Přidej hráče výše</div>`;
+  }
+
+  players.forEach(p=>{
+    html+=`<div class="player-block">
+      <div class="pb-header">
+        <span class="pb-name">${p.name}</span>
+        <button class="pb-del" onclick="deletePlayer('${pos}','${p.name}')">×</button>
+      </div>
+      <div class="stat-grid" style="grid-template-columns:${cols}">
+        ${POS[pos].stats.map(s=>{
+          const hint=s.isPass?`<span class="hint">→ WR</span>`:s.isTD&&pendingTD?`<span class="hint">→ potvrzení</span>`:s.qbInt?`<span class="hint">→ QB</span>`:'';
+          if(s.readonly){
+            return `<div class="stat-info">
+              <span class="val">${p.stats[s.key]||0}</span>
+              <span class="lbl">${s.label}</span>
+            </div>`;
+          }
+          const displayVal = s.qbInt && data.lastQB
+            ? (()=>{ const qb=data.players.find(pl=>pl.pos==='qb'&&pl.name===data.lastQB); return qb?(qb.stats.int||0):0; })()
+            : (p.stats[s.key]||0);
+          const esc = (str) => str.replace(/'/g, '&#39;');
+          return '<button class="stat-btn '+s.cls+'" onclick="handleBtn(&#39;'+esc(pos)+'&#39;,&#39;'+esc(p.name)+'&#39;,&#39;'+s.key+'&#39;,this)">'
+            +'<span class="val">'+displayVal+'</span>'
+            +'<span class="lbl">'+s.label+'</span>'
+            +hint
+            +'</button>';
+        }).join('')}
+      </div>
+    </div>`;
+  });
+
+  el.innerHTML=html;
+}
+
+function addPlayer(pos){
+  const inp=document.getElementById('inp-'+pos);
+  const name=inp.value.trim();
+  if(!name)return;
+  if(!getPlayer(pos,name)){
+    data.players.push({pos,name,stats:emptyStats(pos),drives:[emptyStats(pos)]});
+    save();
+  }
+  inp.value='';
+  renderTab(pos);
+}
+
+function handleBtn(pos,name,key,btn){
+  const statDef=POS[pos].stats.find(s=>s.key===key);
+
+  // 1. QB Pass → přepni na WR
+  if(pos==='qb'&&key==='pass'){
+    history.push({type:'pass',qbName:name});
+    doIncrement('qb',name,'pass');
+    pendingPass={qbName:name};
+    data.lastQB=name;
+    save();
+    btn.querySelector('.val').textContent=getPlayer('qb',name).stats['pass'];
+    setTimeout(()=>switchTab('wr',document.getElementById('tab-btn-wr')),120);
+    return;
+  }
+
+  // 2. WR Zachycení (v rámci pass flow) → přičti WR catch + QB comp, přepni na QB
+  if(pos==='wr'&&key==='catch'&&pendingPass){
+    const qbName=pendingPass.qbName;
+    history.push({type:'catch',qbName,wrName:name});
+    doIncrement('qb',qbName,'comp');
+    doIncrement('wr',name,'catch');
+    pendingPass=null;
+    pendingTD={qbName,wrName:name};
+    save();
+    renderTab('wr');
+    setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+    return;
+  }
+
+  // 3. WR Drop (v rámci pass flow) → přičti WR drop + QB incomp, přepni na QB
+  if(pos==='wr'&&key==='drop'&&pendingPass){
+    const qbName=pendingPass.qbName;
+    history.push({type:'drop',qbName,wrName:name});
+    doIncrement('qb',qbName,'incomp');
+    doIncrement('wr',name,'drop');
+    pendingPass=null;
+    save();
+    renderTab('wr');
+    setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+    return;
+  }
+
+  // 4. QB TD (v rámci pendingTD flow) → přičti QB TD + WR TD + 6 bodů, zobraz potvrzení
+  if(pos==='qb'&&key==='td'&&pendingTD){
+    const {qbName:qbn,wrName}=pendingTD;
+    if(qbn!==name){
+      // jiný QB klepnul na TD — ignorujeme flow, normální increment
+    } else {
+      history.push({type:'td',qbName:name,wrName});
+      doIncrement('qb',name,'td');
+      doIncrement('wr',wrName,'td');
+      doIncrement('wr',wrName,'points',6);
+      pendingTD=null;
+      pendingConfirm={qbName:name,wrName};
+      save();
+      renderTab('qb');
+      return;
+    }
+  }
+
+
+
+  // Normální klepnutí
+  history.push({type:'normal',pos,name,key});
+  doIncrement(pos,name,key);
+  save();
+  btn.querySelector('.val').textContent=getPlayer(pos,name).stats[key];
+}
+
+function resolveConfirmPts(pts){
+  if(!pendingConfirm)return;
+  pendingConfirm.pts=pts;
+  renderTab('qb');
+}
+
+function resolveConfirm(pts,wrName){
+  if(!pendingConfirm)return;
+  const qbName=pendingConfirm.qbName;
+  history.push({type:'confirm',wrName,pts,qbName});
+  if(pts>0&&wrName){
+    doIncrement('wr',wrName,'catch');
+    const confirmKey = pts===1?'confirm1':'confirm2';
+    doIncrement('wr',wrName,confirmKey);
+    doIncrement('wr',wrName,'points',pts);
+    doIncrement('qb',qbName,'pass');
+    doIncrement('qb',qbName,'comp');
+  }
+  pendingConfirm=null;
+  save();
+  renderTab('qb');
+}
+
+function cancelPass(){
+  if(pendingPass){doDecrement('qb',pendingPass.qbName,'pass');history.pop();}
+  pendingPass=null;
+  save();
+  renderTab('wr');
+}
+
+function cancelTD(){
+  // Vrátit catch + comp, zrušit pendingTD
+  if(pendingTD){
+    const last=history[history.length-1];
+    if(last&&last.type==='catch'){
+      doDecrement('qb',last.qbName,'comp');
+      doDecrement('wr',last.wrName,'catch');
+      history.pop();
+    }
+  }
+  pendingTD=null;
+  save();
+  renderTab('qb');
+}
+
+function undoLast(){
+  const last=history.pop();if(!last)return;
+  if(last.type==='pass'){
+    doDecrement('qb',last.qbName,'pass');
+    pendingPass=null;
+  } else if(last.type==='catch'){
+    doDecrement('qb',last.qbName,'comp');
+    doDecrement('wr',last.wrName,'catch');
+    pendingTD=null;
+  } else if(last.type==='drop'){
+    doDecrement('qb',last.qbName,'incomp');
+    doDecrement('wr',last.wrName,'drop');
+  } else if(last.type==='td'){
+    doDecrement('qb',last.qbName,'td');
+    doDecrement('wr',last.wrName,'td');
+    doDecrement('wr',last.wrName,'points',6);
+    pendingConfirm=null;
+    pendingTD={qbName:last.qbName,wrName:last.wrName};
+  } else if(last.type==='confirm'){
+    if(last.pts>0&&last.wrName){
+      doDecrement('wr',last.wrName,'catch');
+      const confirmKey=last.pts===1?'confirm1':'confirm2';
+      doDecrement('wr',last.wrName,confirmKey);
+      doDecrement('wr',last.wrName,'points',last.pts);
+      if(last.qbName){
+        doDecrement('qb',last.qbName,'pass');
+        doDecrement('qb',last.qbName,'comp');
+      }
+    }
+  } else if(last.type==='wrInt'){
+    if(last.qbName){
+      doDecrement('qb',last.qbName,'pass');
+      doDecrement('qb',last.qbName,'incomp');
+      doDecrement('qb',last.qbName,'int');
+    }
+  } else if(last.type==='noTarget'){
+    doDecrement('qb',last.qbName,'incomp');
+  } else if(last.type==='normal'){
+    doDecrement(last.pos,last.name,last.key);
+  }
+  save();
+  renderTab(currentTab);
+}
+
+function deletePlayer(pos,name){
+  if(!confirm('Smazat hráče '+name+'?'))return;
+  data.players=data.players.filter(p=>!(p.pos===pos&&p.name===name));
+  if(pendingPass&&pendingPass.qbName===name)pendingPass=null;
+  if(pendingTD&&(pendingTD.qbName===name||pendingTD.wrName===name))pendingTD=null;
+  if(pendingConfirm&&(pendingConfirm.qbName===name||pendingConfirm.wrName===name))pendingConfirm=null;
+  save();
+  renderTab(pos);
+}
+
+function nextDrive(){
+  if(!confirm('Ukončit Drive '+data.drive+' a spustit nový?'))return;
+  data.drive++;
+  pendingPass=null;pendingTD=null;pendingConfirm=null;
+  data.players.forEach(p=>{if(!p.drives)p.drives=[];p.drives.push(emptyStats(p.pos));});
+  save();
+  document.getElementById('drive-badge').textContent='Drive '+data.drive;
+  ['qb','wr','def'].forEach(renderTab);
+  renderSummary();
+}
+
+function resetAll(){
+  if(!confirm('Začít nový zápas? Statistiky se vymažou, hráči zůstanou.'))return;
+  data.players.forEach(p=>{
+    p.stats=emptyStats(p.pos);
+    p.drives=[emptyStats(p.pos)];
+  });
+  data.drive=1;
+  save();history=[];
+  pendingPass=null;pendingTD=null;pendingConfirm=null;
+  document.getElementById('drive-badge').textContent='Drive 1';
+  ['qb','wr','def'].forEach(renderTab);
+  renderSummary();
+}
+
+function renderSummary(){
+  const el=document.getElementById('tab-summary');
+  const sortKey={qb:'pass',wr:'catch',def:'flagpull'};
+  const sections=[{pos:'qb',label:'QB'},{pos:'wr',label:'WR'},{pos:'def',label:'Obrana'}];
+  const now=new Date();
+  const dateStr=now.toLocaleDateString('cs-CZ')+' '+now.toLocaleTimeString('cs-CZ',{hour:'2-digit',minute:'2-digit'});
+  let html=`<div class="print-header">
+    <h2>Flag Football — Statistiky zápasu</h2>
+    <p>${dateStr} &bull; Drive ${data.drive}</p>
+  </div>
+  <div class="summary-top">
+    <span>${data.players.length} hráčů &bull; Drive ${data.drive}</span>
+    <button class="new-drive-btn" onclick="nextDrive()">+ Nový drive</button>
+  </div>`;
+  let anyPlayer=false;
+  sections.forEach(sec=>{
+    const players=data.players.filter(p=>p.pos===sec.pos)
+      .slice().sort((a,b)=>((b.stats[sortKey[sec.pos]]||0)-(a.stats[sortKey[sec.pos]]||0)));
+    if(!players.length)return;
+    anyPlayer=true;
+    html+=`<div style="display:flex;align-items:center;gap:10px;margin:14px 0 8px;">
+      <div style="font-size:12px;font-weight:700;color:#888;letter-spacing:0.05em;text-transform:uppercase;">${sec.label}</div>
+      <div style="flex:1;height:1px;background:#e0e0e0;"></div>
+    </div>`;
+    players.forEach(p=>{
+      const ps=POS[p.pos].stats;
+      html+=`<div class="player-card">
+        <div class="pc-header"><span class="pc-name">${p.name}</span></div>
+        <div class="mini-stats">${ps.filter(s=>!s.hideInSummary).map(s=>`<div class="ms"><span class="ms-v">${p.stats[s.key]||0}</span><span class="ms-l">${s.label}</span></div>`).join('')}</div>
+      </div>`;
+    });
+  });
+  if(!anyPlayer)html+='<div class="empty">Zatím žádní hráči</div>';
+  // --- Analytická stránka pro trenéry (pouze v PDF) ---
+  html+=`<div class="analytics-page">
+    <div class="analytics-header">
+      <h2>Analytika pro trenéry</h2>
+      <p>${dateStr}</p>
+    </div>`;
+
+  // QB analytika
+  const qbPlayers=data.players.filter(p=>p.pos==='qb');
+  if(qbPlayers.length){
+    html+=`<div class="an-section">QB — přihrávky</div>`;
+    html+=`<table class="an-table"><thead><tr><th>Hráč</th><th>Pass</th><th>Komplet.</th><th>% Komplet.</th><th>TD</th><th>INT</th><th>TD/INT</th></tr></thead><tbody>`;
+    qbPlayers.forEach(p=>{
+      const pass=p.stats.pass||0;
+      const comp=p.stats.comp||0;
+      const td=p.stats.td||0;
+      const int_=p.stats.int||0;
+      const pct=pass>0?Math.round(comp/pass*100):0;
+      const tdint=int_>0?(td/int_).toFixed(1):'—';
+      html+=`<tr><td class="an-name">${p.name}</td><td>${pass}</td><td>${comp}</td><td class="an-good">${pct}%</td><td class="an-good">${td}</td><td class="an-bad">${int_}</td><td>${tdint}</td></tr>`;
+    });
+    html+=`</tbody></table>`;
+  }
+
+  // WR analytika
+  const wrPlayers=data.players.filter(p=>p.pos==='wr');
+  if(wrPlayers.length){
+    html+=`<div class="an-section">WR — příjmy a potvrzení</div>`;
+    html+=`<table class="an-table"><thead><tr><th>Hráč</th><th>Komplet.</th><th>Drop</th><th>% Úsp.</th><th>TD</th><th>Potvr.1b</th><th>Potvr.2b</th><th>% Potvr./TD</th></tr></thead><tbody>`;
+    wrPlayers.forEach(p=>{
+      const catch_=p.stats.catch||0;
+      const drop=p.stats.drop||0;
+      const td=p.stats.td||0;
+      const c1=p.stats.confirm1||0;
+      const c2=p.stats.confirm2||0;
+      const totalAttempts=catch_+drop;
+      const catchPct=totalAttempts>0?Math.round(catch_/totalAttempts*100):0;
+      const confirmPct=td>0?Math.round((c1+c2)/td*100):0;
+      html+=`<tr><td class="an-name">${p.name}</td><td>${catch_}</td><td class="an-bad">${drop}</td><td class="${catchPct>=70?'an-good':'an-warn'}">${catchPct}%</td><td class="an-good">${td}</td><td>${c1}</td><td>${c2}</td><td class="${confirmPct>=50?'an-good':'an-warn'}">${confirmPct}%</td></tr>`;
+    });
+    html+=`</tbody></table>`;
+  }
+
+  // Týmové součty
+  const totalPass=qbPlayers.reduce((s,p)=>s+(p.stats.pass||0),0);
+  const totalComp=qbPlayers.reduce((s,p)=>s+(p.stats.comp||0),0);
+  const totalDrop=wrPlayers.reduce((s,p)=>s+(p.stats.drop||0),0);
+  const totalTD=wrPlayers.reduce((s,p)=>s+(p.stats.td||0),0);
+  const totalC1=wrPlayers.reduce((s,p)=>s+(p.stats.confirm1||0),0);
+  const totalC2=wrPlayers.reduce((s,p)=>s+(p.stats.confirm2||0),0);
+  const totalPts=wrPlayers.reduce((s,p)=>s+(p.stats.points||0),0);
+  const teamPct=totalPass>0?Math.round(totalComp/totalPass*100):0;
+
+  html+=`<div class="an-section">Tým — celkové statistiky</div>`;
+  html+=`<table class="an-table"><thead><tr><th>Ukazatel</th><th>Hodnota</th></tr></thead><tbody>
+    <tr><td>% kompletních přihrávek</td><td class="an-good">${teamPct}%</td></tr>
+    <tr><td>Celkem dropů</td><td class="an-bad">${totalDrop}</td></tr>
+    <tr><td>Celkem TD</td><td class="an-good">${totalTD}</td></tr>
+    <tr><td>Potvrzení za 1 bod</td><td>${totalC1}</td></tr>
+    <tr><td>Potvrzení za 2 body</td><td>${totalC2}</td></tr>
+    <tr><td>Celkem bodů</td><td class="an-good">${totalPts}</td></tr>
+  </tbody></table>`;
+
+  html+=`</div>`;
+  html+=`<div class="export-btn-row"><button class="export-btn" onclick="window.print()">Exportovat do PDF</button></div>`;
+  html+=`<div style="margin-top:10px;"><button class="send-btn" id="send-btn" onclick="sendGame()">Odeslat zápas na web</button></div>`;
+  html+=`<div class="reset-row"><button class="reset-btn" onclick="resetAll()">Nový zápas</button></div>`;
+  el.innerHTML=html;
+}
+
+function sendGame(){
+  if(API_URL==="VLOZ_ZDE_URL_GOOGLE_APPS_SCRIPT"){
+    alert("Nejprve vlož URL Google Apps Script do kódu aplikace (proměnná API_URL).");
+    return;
+  }
+  if(!data.players.length){alert("Žádní hráči k odeslání.");return;}
+  const btn=document.getElementById('send-btn');
+  btn.disabled=true;
+  btn.textContent="Odesílám...";
+
+  // Google Apps Script nepodporuje CORS pro POST s JSON hlavičkami
+  // Řešení: posíláme data jako URL parametr přes GET (no-cors safe)
+  const payload=encodeURIComponent(JSON.stringify({
+    players:data.players,
+    gameNumber:data.gameNumber||1,
+    drive:data.drive
+  }));
+  const url=API_URL+'?data='+payload;
+
+  fetch(url,{method:'GET',mode:'no-cors'})
+  .then(()=>{
+    data.gameNumber=(data.gameNumber||1)+1;
+    save();
+    btn.textContent="Odesláno!";
+    btn.style.background="#1a56db";
+    setTimeout(()=>{btn.disabled=false;btn.textContent="Odeslat zápas na web";btn.style.background="";},3000);
+  })
+  .catch(err=>{
+    alert("Chyba při odesílání: "+err.message);
+    btn.disabled=false;
+    btn.textContent="Odeslat zápas na web";
+  });
+}
+
+function handleWrInt(){
+  const qbName=data.lastQB||null;
+  history.push({type:'wrInt',wrName:null,qbName});
+  if(qbName){
+    doIncrement('qb',qbName,'pass');
+    doIncrement('qb',qbName,'incomp');
+    doIncrement('qb',qbName,'int');
+  }
+  save();
+  renderTab('wr');
+  setTimeout(()=>switchTab('def',document.getElementById('tab-btn-def')),120);
+}
+
+function handleNoTarget(){
+  if(!pendingPass)return;
+  const qbName=pendingPass.qbName;
+  history.push({type:'noTarget',qbName});
+  doIncrement('qb',qbName,'incomp');
+  pendingPass=null;
+  save();
+  renderTab('wr');
+  setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+}
+
+function switchTab(tab,btn){
+  currentTab=tab;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  btn.classList.add('active');
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(tab==='summary')renderSummary();else renderTab(tab);
+}
+
+['qb','wr','def'].forEach(renderTab);
+renderSummary();
+document.getElementById('drive-badge').textContent='Drive '+data.drive;
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js')
+      .then(r=>console.log('SW registered'))
+      .catch(e=>console.log('SW error',e));
+  });
+}
+</script>
+</body>
+</html>
