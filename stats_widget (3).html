@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flag Football — Statistiky</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1a1a1a;padding:20px;}
+.widget{max-width:900px;margin:0 auto;}
+h1{font-size:22px;font-weight:700;margin-bottom:4px;color:#1a1a1a;}
+.subtitle{font-size:14px;color:#888;margin-bottom:20px;}
+
+.section-bar{display:flex;align-items:center;gap:10px;margin:20px 0 10px;}
+.section-bar span{font-size:12px;font-weight:700;color:#888;letter-spacing:0.05em;text-transform:uppercase;white-space:nowrap;}
+.section-bar div{flex:1;height:1px;background:#ddd;}
+
+table{width:100%;border-collapse:collapse;background:#fff;border-radius:14px;overflow:hidden;margin-bottom:8px;}
+thead tr{background:#f8f8f8;}
+th{padding:10px 12px;text-align:left;font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.04em;border-bottom:1px solid #eee;}
+th.num{text-align:center;}
+td{padding:10px 12px;font-size:14px;color:#1a1a1a;border-bottom:0.5px solid #f0f0f0;}
+td.num{text-align:center;font-weight:600;}
+td.name{font-weight:700;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:#fafafa;}
+
+.td-val{color:#0a7c3e;}
+.neg-val{color:#c0392b;}
+.info-val{color:#1a56db;font-weight:700;}
+
+.loading{text-align:center;padding:40px;color:#888;font-size:15px;}
+.error{text-align:center;padding:40px;color:#c0392b;font-size:14px;line-height:1.6;}
+.updated{font-size:12px;color:#bbb;text-align:right;margin-top:12px;}
+.reload-btn{margin-top:12px;padding:8px 20px;border-radius:10px;border:1.5px solid #ddd;background:#fff;font-size:13px;cursor:pointer;}
+</style>
+</head>
+<body>
+<div class="widget">
+  <h1 id="widget-title">Flag Football Statistiky</h1>
+  <p class="subtitle">Kumulativní statistiky hráčů napříč zápasy</p>
+  <div id="stats-root"><div class="loading">Načítám statistiky...</div></div>
+  <div class="updated" id="updated"></div>
+</div>
+
+<script>
+// ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
+const API_URL = "https://script.google.com/macros/s/AKfycbxwxdhQi4X7CU1Dg0sMflmcxNeAhqp4Ppg08CIRd1oL7BpVY2aeXuDgvtN17Mkdymd5/exec";
+
+// ⚠️ Výchozí tým pokud není zadán v URL (nech prázdné pro použití pouze URL parametru)
+// Příklad: const DEFAULT_TEAM = "Muži A";
+const DEFAULT_TEAM = "";
+
+const POS_LABELS = { qb:"QB", wr:"WR", def:"Obrana" };
+const SORT_KEY = { qb:'pass', wr:'catch', def:'flagpull' };
+const COLS = {
+  qb: [
+    {key:'games',  label:'Game',     cls:'info-val'},
+    {key:'pass',   label:'Pass',     cls:''},
+    {key:'comp',   label:'Komplet.', cls:'td-val'},
+    {key:'incomp', label:'Nekomp.',  cls:'neg-val'},
+    {key:'td',     label:'TD',       cls:'td-val'},
+    {key:'int',    label:'INT',      cls:'neg-val'},
+    {key:'sack',   label:'Sack',     cls:'neg-val'},
+    {key:'safety', label:'Safety',   cls:'neg-val'},
+  ],
+  wr: [
+    {key:'games',   label:'Game',     cls:'info-val'},
+    {key:'catch',   label:'Kompletní',cls:'td-val'},
+    {key:'drop',    label:'Drop',     cls:'neg-val'},
+    {key:'td',      label:'TD',       cls:'td-val'},
+    {key:'confirm', label:'Potvrzení',cls:'td-val'},
+    {key:'points',  label:'Body',     cls:'td-val'},
+    {key:'int',     label:'INT',      cls:'neg-val'},
+  ],
+  def: [
+    {key:'games',   label:'Game',     cls:'info-val'},
+    {key:'flagpull',label:'Flag pull',cls:''},
+    {key:'int',     label:'INT',      cls:'td-val'},
+    {key:'inttd',   label:'INT TD',   cls:'td-val'},
+    {key:'brkup',   label:'Brkup',    cls:''},
+    {key:'sack',    label:'Sack',     cls:'td-val'},
+    {key:'safety',  label:'Safety',   cls:'td-val'},
+  ]
+};
+
+// Načti název týmu z URL parametru ?team=NazevTypu
+const urlParams = new URLSearchParams(window.location.search);
+const TEAM_NAME = urlParams.get('team') || DEFAULT_TEAM;
+
+function loadStats() {
+  // Aktualizuj nadpis podle týmu
+  if (TEAM_NAME) {
+    document.getElementById('widget-title').textContent = TEAM_NAME + ' — Statistiky';
+    document.title = TEAM_NAME + ' — Flag Football Statistiky';
+  }
+
+  document.getElementById('stats-root').innerHTML = '<div class="loading">Načítám statistiky...</div>';
+
+  const callbackName = 'ffCallback_' + Date.now();
+  const script = document.createElement('script');
+
+  const timeout = setTimeout(() => {
+    cleanup();
+    showError('Vypršel čas připojení. Zkontroluj URL v kódu.');
+  }, 10000);
+
+  window[callbackName] = function(data) {
+    cleanup();
+    if (data && data.players) {
+      renderStats(data.players);
+      document.getElementById('updated').textContent =
+        'Aktualizováno: ' + new Date().toLocaleString('cs-CZ');
+    } else {
+      showError('Neplatná odpověď ze serveru.');
+    }
+  };
+
+  function cleanup() {
+    clearTimeout(timeout);
+    delete window[callbackName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  script.onerror = function() {
+    cleanup();
+    showError('Nepodařilo se načíst data.<br>Zkontroluj že URL v kódu je správná.');
+  };
+
+  // Přidej název týmu do požadavku
+  const teamParam = TEAM_NAME ? '&team=' + encodeURIComponent(TEAM_NAME) : '';
+  script.src = API_URL + '?callback=' + callbackName + teamParam;
+  document.head.appendChild(script);
+}
+
+function showError(msg) {
+  document.getElementById('stats-root').innerHTML =
+    '<div class="error">' + msg + '<br><br><button class="reload-btn" onclick="loadStats()">Zkusit znovu</button></div>';
+}
+
+function renderStats(players) {
+  const root = document.getElementById('stats-root');
+  if (!players.length) {
+    root.innerHTML = '<div class="loading">Zatím žádné statistiky.</div>';
+    return;
+  }
+  let html = '';
+  ['qb','wr','def'].forEach(pos => {
+    const group = players
+      .filter(p => p.pos === pos)
+      .sort((a,b) => (b.stats[SORT_KEY[pos]]||0) - (a.stats[SORT_KEY[pos]]||0));
+    if (!group.length) return;
+    const cols = COLS[pos];
+    html += `<div class="section-bar"><span>${POS_LABELS[pos]}</span><div></div></div>`;
+    html += `<table><thead><tr><th>Hráč</th>${cols.map(c=>`<th class="num">${c.label}</th>`).join('')}</tr></thead><tbody>`;
+    group.forEach(p => {
+      html += `<tr><td class="name">${p.name}</td>`;
+      cols.forEach(c => {
+        const val = c.key==='games' ? p.games : (p.stats[c.key]||0);
+        html += `<td class="num ${c.cls}">${val}</td>`;
+      });
+      html += `</tr>`;
+    });
+    html += `</tbody></table>`;
+  });
+  root.innerHTML = html;
+}
+
+// Google Apps Script musí vracet JSONP — přidej do doGet funkce podporu callbacku
+// (viz aktualizovaný google_apps_script.js)
+
+if (API_URL === "VLOZ_ZDE_URL_GOOGLE_APPS_SCRIPT") {
+  document.getElementById('stats-root').innerHTML =
+    '<div class="error">Vlož URL Google Apps Script do proměnné API_URL v tomto souboru.</div>';
+} else {
+  loadStats();
+}
+</script>
+</body>
+</html>
