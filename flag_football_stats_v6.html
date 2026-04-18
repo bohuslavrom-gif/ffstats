@@ -126,10 +126,28 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </head>
 <body>
 <div class="app">
-  <div class="topbar">
-    <h1>Statistiky Sezóna 2026</h1>
-    <span class="drive-badge" id="drive-badge">Drive 1</span>
+  <div class="topbar" id="topbar">
+    <div style="display:flex;flex-direction:column;gap:2px;">
+      <div style="font-size:11px;color:#888;font-weight:500;" id="team-label">Žádný tým</div>
+      <h1 style="font-size:16px;" id="app-title">Statistiky Sezóna 2026</h1>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button onclick="showTeamScreen()" style="padding:5px 10px;border:1.5px solid #e0e0e0;border-radius:8px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:#1a56db;">Týmy</button>
+      <span class="drive-badge" id="drive-badge">Drive 1</span>
+    </div>
   </div>
+  <div id="team-screen" style="display:none;">
+    <div style="margin-bottom:14px;">
+      <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:12px;">Výběr týmu</div>
+      <div id="teams-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
+      <div style="display:flex;gap:8px;">
+        <input type="text" id="new-team-input" placeholder="Název nového týmu..." style="flex:1;height:44px;border:1.5px solid #e0e0e0;border-radius:12px;padding:0 14px;font-size:15px;background:#fff;color:#1a1a1a;" onkeydown="if(event.key==='Enter')addTeam()" />
+        <button onclick="addTeam()" style="height:44px;padding:0 18px;border:none;border-radius:12px;background:#1a56db;color:#fff;font-size:15px;font-weight:600;cursor:pointer;">Přidat</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="main-screen" style="display:none;">
   <div class="tabs">
     <button class="tab active" id="tab-btn-qb" onclick="switchTab('qb',this)">QB</button>
     <button class="tab" id="tab-btn-wr" onclick="switchTab('wr',this)">WR</button>
@@ -142,6 +160,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   <div class="section" id="tab-summary"></div>
 </div>
 
+  </div><!-- end main-screen -->
 <script>
 const POS={
   qb:{label:'QB',stats:[
@@ -172,10 +191,26 @@ const POS={
 };
 
 // ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
-const API_URL = "https://script.google.com/macros/s/AKfycbzcFlGGFKiMEEV_j8foT-8cBk_DrURvsKNouPRqOCxdqfFdEDMkg61YaUfIdneoASucIw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxwxdhQi4X7CU1Dg0sMflmcxNeAhqp4Ppg08CIRd1oL7BpVY2aeXuDgvtN17Mkdymd5/exec";
 
-let data={players:[],drive:1,gameNumber:1,lastQB:null};
-try{const s=localStorage.getItem('ffv8');if(s)data=JSON.parse(s);}catch(e){}
+// Data jsou uložena per tým
+let currentTeam = null;
+let teams = {}; // { teamName: { players, drive, gameNumber, lastQB } }
+try{ const s=localStorage.getItem('ffv9_teams'); if(s) teams=JSON.parse(s); }catch(e){}
+try{ const s=localStorage.getItem('ffv9_currentTeam'); if(s) currentTeam=s; }catch(e){}
+
+// Getter pro aktuální data týmu
+function teamData(){
+  if(!currentTeam) return null;
+  if(!teams[currentTeam]) teams[currentTeam]={players:[],drive:1,gameNumber:1,lastQB:null};
+  return teams[currentTeam];
+}
+
+// Zpětná kompatibilita - data odkazují na aktuální tým
+let data = new Proxy({}, {
+  get(t,k){ const d=teamData(); return d?d[k]:undefined; },
+  set(t,k,v){ const d=teamData(); if(d) d[k]=v; return true; }
+});
 let history=[];
 let currentTab='qb';
 
@@ -187,7 +222,12 @@ let pendingPass=null;
 let pendingTD=null;
 let pendingConfirm=null;
 
-function save(){try{localStorage.setItem('ffv8',JSON.stringify(data));}catch(e){}}
+function save(){
+  try{
+    localStorage.setItem('ffv9_teams', JSON.stringify(teams));
+    localStorage.setItem('ffv9_currentTeam', currentTeam||'');
+  }catch(e){}
+}
 function getPlayer(pos,name){return data.players.find(p=>p.pos===pos&&p.name===name);}
 function emptyStats(pos){const o={};POS[pos].stats.forEach(s=>o[s.key]=0);return o;}
 
@@ -628,7 +668,8 @@ function sendGame(){
   const payload=encodeURIComponent(JSON.stringify({
     players:data.players,
     gameNumber:data.gameNumber||1,
-    drive:data.drive
+    drive:data.drive,
+    team:currentTeam||'Neznamý tým'
   }));
   const url=API_URL+'?data='+payload;
 
@@ -680,9 +721,75 @@ function switchTab(tab,btn){
   if(tab==='summary')renderSummary();else renderTab(tab);
 }
 
-['qb','wr','def'].forEach(renderTab);
-renderSummary();
-document.getElementById('drive-badge').textContent='Drive '+data.drive;
+// Team management
+function showTeamScreen(){
+  document.getElementById('team-screen').style.display='block';
+  document.getElementById('main-screen').style.display='none';
+  renderTeamsList();
+}
+
+function hideTeamScreen(){
+  document.getElementById('team-screen').style.display='none';
+  document.getElementById('main-screen').style.display='block';
+}
+
+function renderTeamsList(){
+  const list=document.getElementById('teams-list');
+  const teamNames=Object.keys(teams);
+  if(!teamNames.length){
+    list.innerHTML='<div style="color:#aaa;font-size:14px;text-align:center;padding:16px 0;">Zatím žádné týmy</div>';
+    return;
+  }
+  list.innerHTML=teamNames.map(t=>`
+    <div style="display:flex;align-items:center;gap:8px;">
+      <button onclick="selectTeam('${t.replace(/'/g,"&#39;")}')" style="flex:1;padding:14px 16px;border:${t===currentTeam?'2px solid #1a56db':'1.5px solid #e0e0e0'};border-radius:12px;background:${t===currentTeam?'#e8f0fe':'#fff'};font-size:15px;font-weight:${t===currentTeam?'700':'500'};cursor:pointer;color:${t===currentTeam?'#1a56db':'#1a1a1a'};text-align:left;">
+        ${t} ${t===currentTeam?'✓':''}
+      </button>
+      <button onclick="deleteTeam('${t.replace(/'/g,"&#39;")}')" style="width:40px;height:40px;border:1.5px solid #f0c0c0;border-radius:10px;background:#fff;color:#c0392b;font-size:18px;cursor:pointer;">×</button>
+    </div>`).join('');
+}
+
+function addTeam(){
+  const inp=document.getElementById('new-team-input');
+  const name=inp.value.trim();
+  if(!name)return;
+  if(!teams[name]) teams[name]={players:[],drive:1,gameNumber:1,lastQB:null};
+  inp.value='';
+  save();
+  selectTeam(name);
+}
+
+function selectTeam(name){
+  currentTeam=name;
+  save();
+  document.getElementById('team-label').textContent=name;
+  document.getElementById('drive-badge').textContent='Drive '+(teamData().drive||1);
+  hideTeamScreen();
+  ['qb','wr','def'].forEach(renderTab);
+  renderSummary();
+}
+
+function deleteTeam(name){
+  if(!confirm('Smazat tým '+name+' včetně všech hráčů a statistik?'))return;
+  delete teams[name];
+  if(currentTeam===name){
+    currentTeam=Object.keys(teams)[0]||null;
+  }
+  save();
+  if(!currentTeam){showTeamScreen();return;}
+  renderTeamsList();
+}
+
+// Init
+if(!currentTeam||!teams[currentTeam]){
+  showTeamScreen();
+} else {
+  hideTeamScreen();
+  document.getElementById('team-label').textContent=currentTeam;
+  ['qb','wr','def'].forEach(renderTab);
+  renderSummary();
+  document.getElementById('drive-badge').textContent='Drive '+(teamData().drive||1);
+}
 </script>
 <script>
 if('serviceWorker' in navigator){
