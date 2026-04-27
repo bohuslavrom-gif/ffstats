@@ -1,6 +1,6 @@
 // Flag Football Stats — Service Worker
 // Verze cache — změň číslo při každém update aplikace
-const CACHE_NAME = 'ff-stats-v1';
+const CACHE_NAME = 'ff-stats-v7';
 
 // Soubory které se uloží do cache pro offline použití
 const FILES_TO_CACHE = [
