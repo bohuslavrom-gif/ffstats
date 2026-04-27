@@ -189,3 +189,12 @@ function renderStats(players) {
   root.innerHTML = html;
 }
 
+if (API_URL === "VLOZ_ZDE_URL_GOOGLE_APPS_SCRIPT") {
+  document.getElementById('stats-root').innerHTML =
+    '<div class="error">Vlož URL Google Apps Script do proměnné API_URL v tomto souboru.</div>';
+} else {
+  loadStats();
+}
+</script>
+</body>
+</html>
