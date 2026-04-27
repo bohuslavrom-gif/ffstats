@@ -53,6 +53,7 @@ const DEFAULT_TEAM = "";
 
 const POS_LABELS = { qb:"QB", wr:"WR", def:"Obrana" };
 const SORT_KEY = { qb:'pass', wr:'catch', def:'flagpull' };
+let sortState = { qb:{key:'pass',asc:false}, wr:{key:'catch',asc:false}, def:{key:'flagpull',asc:false} };
 const COLS = {
   qb: [
     {key:'games',  label:'Game',     cls:'info-val'},
@@ -138,7 +139,18 @@ function showError(msg) {
     '<div class="error">' + msg + '<br><br><button class="reload-btn" onclick="loadStats()">Zkusit znovu</button></div>';
 }
 
+function sortBy(pos, key) {
+  if (sortState[pos].key === key) {
+    sortState[pos].asc = !sortState[pos].asc;
+  } else {
+    sortState[pos].key = key;
+    sortState[pos].asc = false;
+  }
+  renderStats(window._lastPlayers || []);
+}
+
 function renderStats(players) {
+  window._lastPlayers = players;
   const root = document.getElementById('stats-root');
   if (!players.length) {
     root.innerHTML = '<div class="loading">Zatím žádné statistiky.</div>';
@@ -146,35 +158,34 @@ function renderStats(players) {
   }
   let html = '';
   ['qb','wr','def'].forEach(pos => {
+    const ss = sortState[pos];
     const group = players
       .filter(p => p.pos === pos)
-      .sort((a,b) => (b.stats[SORT_KEY[pos]]||0) - (a.stats[SORT_KEY[pos]]||0));
+      .sort((a,b) => {
+        const aVal = ss.key==='games' ? a.games : (a.stats[ss.key]||0);
+        const bVal = ss.key==='games' ? b.games : (b.stats[ss.key]||0);
+        return ss.asc ? aVal-bVal : bVal-aVal;
+      });
     if (!group.length) return;
     const cols = COLS[pos];
     html += `<div class="section-bar"><span>${POS_LABELS[pos]}</span><div></div></div>`;
-    html += `<table><thead><tr><th>Hráč</th>${cols.map(c=>`<th class="num">${c.label}</th>`).join('')}</tr></thead><tbody>`;
-    group.forEach(p => {
-      html += `<tr><td class="name">${p.name}</td>`;
-      cols.forEach(c => {
-        const val = c.key==='games' ? p.games : (p.stats[c.key]||0);
-        html += `<td class="num ${c.cls}">${val}</td>`;
-      });
-      html += `</tr>`;
+    html += '<table><thead><tr>';
+    html += `<th style="cursor:pointer;" onclick="sortBy('${pos}','name')">Hráč</th>`;
+    cols.forEach(c => {
+      const active = ss.key === c.key;
+      html += '<th class="num" style="cursor:pointer;' + (active?'color:#1a56db;font-weight:800;':'') + '" onclick="sortBy('' + pos + '','' + c.key + '')">' + c.label + (active?(ss.asc?' ↑':' ↓'):'') + '</th>';
     });
-    html += `</tbody></table>`;
+    html += '</tr></thead><tbody>';
+    group.forEach(p => {
+      html += '<tr><td class="name">' + p.name + '</td>';
+      cols.forEach(c => {
+        const val = c.key==='games' ? p.games : (p.stats[c.key] || 0);
+        html += '<td class="num ' + c.cls + '">' + val + '</td>';
+      });
+      html += '</tr>';
+    });
+    html += '</tbody></table>';
   });
   root.innerHTML = html;
 }
 
-// Google Apps Script musí vracet JSONP — přidej do doGet funkce podporu callbacku
-// (viz aktualizovaný google_apps_script.js)
-
-if (API_URL === "VLOZ_ZDE_URL_GOOGLE_APPS_SCRIPT") {
-  document.getElementById('stats-root').innerHTML =
-    '<div class="error">Vlož URL Google Apps Script do proměnné API_URL v tomto souboru.</div>';
-} else {
-  loadStats();
-}
-</script>
-</body>
-</html>
