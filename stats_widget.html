@@ -45,7 +45,7 @@ tr:hover td{background:#fafafa;}
 
 <script>
 // ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
-const API_URL = "https://script.google.com/macros/s/AKfycbxwxdhQi4X7CU1Dg0sMflmcxNeAhqp4Ppg08CIRd1oL7BpVY2aeXuDgvtN17Mkdymd5/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzkdsKg2zNbxCfSV5rI_PBClD3N2HoY1Abtwnw_exNbsBJm7oyTh3NPyRjEw03ibr6Mzw/exec";
 
 // ⚠️ Výchozí tým pokud není zadán v URL (nech prázdné pro použití pouze URL parametru)
 // Příklad: const DEFAULT_TEAM = "Muži A";
@@ -112,6 +112,12 @@ function loadStats() {
       renderStats(data.players);
       document.getElementById('updated').textContent =
         'Aktualizováno: ' + new Date().toLocaleString('cs-CZ');
+    } else if (data && data.status === 'error') {
+      showError('Chyba serveru: ' + (data.message || 'neznámá'));
+    } else if (data) {
+      // Data přišla ale bez players - zkus přímo
+      const keys = Object.keys(data).join(', ');
+      showError('Data přišla ale bez hráčů. Klíče: ' + keys);
     } else {
       showError('Neplatná odpověď ze serveru.');
     }
@@ -168,26 +174,28 @@ function renderStats(players) {
       });
     if (!group.length) return;
     const cols = COLS[pos];
-    html += `<div class="section-bar"><span>${POS_LABELS[pos]}</span><div></div></div>`;
-    html += '<table><thead><tr>';
-    html += `<th style="cursor:pointer;" onclick="sortBy('${pos}','name')">Hráč</th>`;
+    html += '<div class="section-bar"><span>'+POS_LABELS[pos]+'</span><div></div></div>';
+    let thead = '<table><thead><tr><th style="cursor:pointer" onclick="sortBy(&#39;'+pos+'&#39;,&#39;name&#39;)">Hráč</th>';
     cols.forEach(c => {
       const active = ss.key === c.key;
-      html += '<th class="num" style="cursor:pointer;' + (active?'color:#1a56db;font-weight:800;':'') + '" onclick="sortBy('' + pos + '','' + c.key + '')">' + c.label + (active?(ss.asc?' ↑':' ↓'):'') + '</th>';
+      thead += '<th class="num" style="cursor:pointer;'+(active?'color:#1a56db;font-weight:800;':'')+'" onclick="sortBy(&#39;'+pos+'&#39;,&#39;'+c.key+'&#39;)">'+c.label+(active?(ss.asc?' ↑':' ↓'):'')+' </th>';
     });
-    html += '</tr></thead><tbody>';
+    thead += '</tr></thead><tbody>';
+    html += thead;
     group.forEach(p => {
-      html += '<tr><td class="name">' + p.name + '</td>';
+      let row = '<tr><td class="name">'+p.name+'</td>';
       cols.forEach(c => {
         const val = c.key==='games' ? p.games : (p.stats[c.key] || 0);
-        html += '<td class="num ' + c.cls + '">' + val + '</td>';
+        row += '<td class="num '+c.cls+'">'+val+'</td>';
       });
-      html += '</tr>';
+      row += '</tr>';
+      html += row;
     });
     html += '</tbody></table>';
   });
   root.innerHTML = html;
 }
+
 
 if (API_URL === "VLOZ_ZDE_URL_GOOGLE_APPS_SCRIPT") {
   document.getElementById('stats-root').innerHTML =
