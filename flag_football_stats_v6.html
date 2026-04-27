@@ -14,7 +14,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;padding:12px 16px;background:#fff;border-radius:14px;}
 .topbar h1{font-size:18px;font-weight:600;color:#1a1a1a;}
-.drive-badge{font-size:13px;background:#e8f0fe;color:#1a56db;padding:5px 12px;border-radius:999px;font-weight:600;}
 
 .tabs{display:flex;gap:5px;margin-bottom:12px;background:#fff;padding:6px;border-radius:14px;}
 .tab{flex:1;padding:10px 4px;border:none;border-radius:10px;background:transparent;font-size:14px;font-weight:600;color:#888;cursor:pointer;transition:all 0.15s;}
@@ -23,13 +22,13 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .section{display:none;}
 .section.active{display:block;}
 
-.add-row{display:flex;gap:8px;margin-bottom:10px;}
+.add-row{display:flex;gap:8px;margin-top:10px;}
 .add-row input{flex:1;height:44px;border:1.5px solid #e0e0e0;border-radius:12px;padding:0 14px;font-size:15px;background:#fff;color:#1a1a1a;}
 .add-row input:focus{outline:none;border-color:#1a56db;}
 .add-row button{height:44px;padding:0 18px;border:none;border-radius:12px;background:#1a56db;color:#fff;font-size:15px;font-weight:600;cursor:pointer;}
 
-.undo-row{display:flex;justify-content:flex-end;margin-bottom:8px;}
-.undo-btn{padding:7px 16px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#555;}
+.undo-row{display:flex;justify-content:space-between;gap:6px;margin-bottom:10px;}
+.undo-btn{padding:7px 14px;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#555;}
 
 .pending-bar{border-radius:12px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;}
 .pending-bar.yellow{background:#fffbea;border:1.5px solid #f6c90e;}
@@ -60,11 +59,16 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .stat-btn .lbl{font-size:11px;font-weight:600;color:#555;text-align:center;line-height:1.2;}
 .stat-btn .hint{font-size:9px;color:#1a56db;margin-top:1px;}
 .stat-btn.td-btn{background:#e6f9ee;}
-.stat-btn.td-btn .val,.stat-btn.td-btn .lbl{color:#0a7c3e;}
+.stat-btn.td-btn .val{color:#0a7c3e;}
+.stat-btn.td-btn .lbl{color:#0a7c3e;}
 .stat-btn.neg-btn{background:#fef0f0;}
-.stat-btn.neg-btn .val,.stat-btn.neg-btn .lbl{color:#c0392b;}
+.stat-btn.neg-btn .val{color:#c0392b;}
+.stat-btn.neg-btn .lbl{color:#c0392b;}
 .stat-btn.pass-btn{background:#e8f0fe;}
-.stat-btn.pass-btn .val,.stat-btn.pass-btn .lbl,.stat-btn.pass-btn .hint{color:#1a56db;}
+.stat-btn.pass-btn .val{color:#1a56db;}
+.stat-btn.pass-btn .lbl{color:#1a56db;}
+.stat-btn.pass-btn .hint{color:#1a56db;}
+
 .stat-info{border-radius:12px;padding:12px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;background:#f5f5f5;}
 .stat-info .val{font-size:26px;font-weight:700;color:#aaa;line-height:1;}
 .stat-info .lbl{font-size:11px;font-weight:600;color:#bbb;text-align:center;line-height:1.2;}
@@ -87,53 +91,66 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 .reset-row{text-align:center;margin-top:16px;padding-bottom:20px;}
 .reset-btn{padding:9px 22px;border-radius:10px;border:1.5px solid #f0c0c0;background:#fff;color:#c0392b;font-size:13px;font-weight:600;cursor:pointer;}
-.send-btn{padding:11px 28px;border-radius:12px;border:none;background:#0a7c3e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;width:100%;margin-bottom:8px;}
+
+.send-btn{width:100%;padding:11px 28px;border-radius:12px;border:none;background:#0a7c3e;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:8px;}
 .send-btn:active{transform:scale(0.97);}
 .send-btn:disabled{background:#aaa;cursor:not-allowed;}
-@media print {
-  body { background: #fff !important; }
-  .app { max-width: 100% !important; padding: 0 !important; }
-  .tabs, .section:not(#tab-summary), .add-row, .undo-row,
-  .pending-bar, .confirm-bar, .summary-top, .reset-row,
-  .export-btn-row, .send-btn { display: none !important; }
-  #tab-summary { display: block !important; }
-  .player-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; margin-bottom: 8px; }
-  .print-header { display: block !important; }
-  .analytics-page { display: block !important; page-break-before: always; }
-  .an-table { break-inside: auto; }
-  .an-table tr { break-inside: avoid; }
-}
-.analytics-page { display: block; }
-.analytics-header { margin-bottom: 16px; border-bottom: 2px solid #1a1a1a; padding-bottom: 10px; }
-.analytics-header h2 { font-size: 18px; font-weight: 700; }
-.analytics-header p { font-size: 12px; color: #888; margin-top: 3px; }
-.an-section { font-size: 11px; font-weight: 700; color: #888; text-transform: uppercase; letter-spacing: 0.05em; margin: 14px 0 6px; }
-.an-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12px; }
-.an-table th { background: #f5f5f5; padding: 7px 8px; text-align: left; font-size: 10px; font-weight: 700; color: #888; text-transform: uppercase; border-bottom: 1px solid #ddd; }
-.an-table td { padding: 7px 8px; border-bottom: 0.5px solid #eee; }
-.an-name { font-weight: 700; }
-.an-good { color: #0a7c3e; font-weight: 700; }
-.an-bad { color: #c0392b; font-weight: 700; }
-.an-warn { color: #b8860b; font-weight: 700; }
-.print-header { display: none; padding: 0 0 12px; border-bottom: 2px solid #1a1a1a; margin-bottom: 14px; }
-.print-header h2 { font-size: 20px; font-weight: 700; color: #1a1a1a; }
-.print-header p { font-size: 13px; color: #888; margin-top: 3px; }
-.export-btn-row { text-align: center; margin: 14px 0 4px; }
-.export-btn { padding: 11px 28px; border-radius: 12px; border: none; background: #1a56db; color: #fff; font-size: 15px; font-weight: 700; cursor: pointer; }
-.export-btn:active { transform: scale(0.97); }
+.export-btn-row{text-align:center;margin:14px 0 4px;}
+.export-btn{padding:11px 28px;border-radius:12px;border:none;background:#1a56db;color:#fff;font-size:15px;font-weight:700;cursor:pointer;}
+.export-btn:active{transform:scale(0.97);}
 
+.to-dot{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,0.25);transition:opacity 0.15s;}
+.to-dot.avail{background:rgba(255,255,255,0.95);}
+
+.print-header{display:none;padding:0 0 12px;border-bottom:2px solid #1a1a1a;margin-bottom:14px;}
+.print-header h2{font-size:20px;font-weight:700;}
+.print-header p{font-size:13px;color:#888;margin-top:3px;}
+
+.an-section{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin:14px 0 6px;}
+.an-table{width:100%;border-collapse:collapse;margin-bottom:12px;font-size:12px;}
+.an-table th{background:#f5f5f5;padding:7px 8px;text-align:left;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;border-bottom:1px solid #ddd;}
+.an-table td{padding:7px 8px;border-bottom:0.5px solid #eee;color:#1a1a1a;}
+.an-name{font-weight:700;}
+.an-good{color:#0a7c3e;font-weight:700;}
+.an-bad{color:#c0392b;font-weight:700;}
+.an-warn{color:#b8860b;font-weight:700;}
+
+@media print{
+  body{background:#fff !important;}
+  .app{max-width:100% !important;padding:0 !important;}
+  .tabs,.section:not(#tab-summary),.add-row,.undo-row,.pending-bar,.confirm-bar,.summary-top,.reset-row,.export-btn-row,.send-btn{display:none !important;}
+  #tab-summary{display:block !important;}
+  .player-card{break-inside:avoid;box-shadow:none;border:1px solid #ddd;margin-bottom:8px;}
+  .print-header{display:block !important;}
+  .analytics-page{display:block !important;page-break-before:always;}
+  .an-table tr{break-inside:avoid;}
+}
+.analytics-page{display:block;}
+.analytics-header{margin-bottom:16px;border-bottom:2px solid #1a1a1a;padding-bottom:10px;}
+.analytics-header h2{font-size:18px;font-weight:700;}
+.analytics-header p{font-size:12px;color:#888;margin-top:3px;}
 </style>
 </head>
 <body>
 <div class="app">
   <div class="topbar" id="topbar">
     <div style="display:flex;flex-direction:column;gap:2px;">
-      <div style="font-size:11px;color:#888;font-weight:500;" id="team-label">Žádný tým</div>
-      <h1 style="font-size:16px;" id="app-title">Statistiky Sezóna 2026</h1>
+      <div style="font-size:11px;color:#888;font-weight:500;">Statistiky Sezóna 2026</div>
+      <button onclick="showTeamScreen()" style="padding:0;border:none;background:none;font-size:16px;font-weight:600;cursor:pointer;color:#1a1a1a;text-align:left;" id="team-label">Žádný tým</button>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;">
-      <button onclick="showTeamScreen()" style="padding:5px 10px;border:1.5px solid #e0e0e0;border-radius:8px;background:#fff;font-size:12px;font-weight:600;cursor:pointer;color:#1a56db;">Týmy</button>
-      <span class="drive-badge" id="drive-badge">Drive 1</span>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
+      <div style="font-size:11px;font-weight:700;color:#888;" id="half-label">1. poločas</div>
+      <div style="display:flex;align-items:center;gap:4px;background:#1a56db;border-radius:10px;padding:5px 8px;">
+        <div onclick="useTimeout('our')" style="display:flex;align-items:center;gap:4px;cursor:pointer;padding:4px 6px;border-radius:8px;">
+          <div style="display:flex;gap:3px;" id="our-timeouts"></div>
+          <span style="font-size:20px;font-weight:700;color:#fff;" id="score-us">0</span>
+        </div>
+        <span style="font-size:14px;color:rgba(255,255,255,0.5);">:</span>
+        <div onclick="useTimeout('opp')" style="display:flex;align-items:center;gap:4px;cursor:pointer;padding:4px 6px;border-radius:8px;">
+          <span style="font-size:20px;font-weight:700;color:rgba(255,255,255,0.85);" id="score-them">0</span>
+          <div style="display:flex;gap:3px;" id="opp-timeouts"></div>
+        </div>
+      </div>
     </div>
   </div>
   <div id="team-screen" style="display:none;">
@@ -141,8 +158,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:12px;">Výběr týmu</div>
       <div id="teams-list" style="display:flex;flex-direction:column;gap:8px;margin-bottom:14px;"></div>
       <div style="display:flex;gap:8px;">
-        <input type="text" id="new-team-input" placeholder="Název nového týmu..." style="flex:1;height:44px;border:1.5px solid #e0e0e0;border-radius:12px;padding:0 14px;font-size:15px;background:#fff;color:#1a1a1a;" onkeydown="if(event.key==='Enter')addTeam()" />
-        <button onclick="addTeam()" style="height:44px;padding:0 18px;border:none;border-radius:12px;background:#1a56db;color:#fff;font-size:15px;font-weight:600;cursor:pointer;">Přidat</button>
+        <input type="text" id="new-team-input" placeholder="Název nového týmu..." style="flex:1;height:44px;border:1px solid #2a2d3a;border-radius:12px;padding:0 14px;font-size:15px;background:#1a1d27;color:#f0f0f0;" onkeydown="if(event.key==='Enter')addTeam()" />
+        <button onclick="addTeam()" style="height:44px;padding:0 18px;border:none;border-radius:12px;background:#3a5bd9;color:#fff;font-size:15px;font-weight:600;cursor:pointer;">Přidat</button>
       </div>
     </div>
   </div>
@@ -165,20 +182,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 const POS={
   qb:{label:'QB',stats:[
     {key:'pass', label:'Pass',    cls:'pass-btn', isPass:true},
-    {key:'comp', label:'Komplet.',cls:'',          readonly:true},
-    {key:'incomp',label:'Nekomp.',cls:'neg-btn',   readonly:true},
-    {key:'td',   label:'TD',     cls:'td-btn',    isTD:true},
-    {key:'int',  label:'INT',    cls:'neg-btn',   readonly:true},
+    {key:'comp', label:'Komplet.',cls:'',          readonly:true, hiddenInTab:true},
+    {key:'incomp',label:'Nekomp.',cls:'neg-btn',   readonly:true, hiddenInTab:true},
+    {key:'td',   label:'TD',     cls:'td-btn',    isTD:true, conditionalActive:true, hiddenInTab:true},
+    {key:'int',  label:'INT',    cls:'neg-btn',   readonly:true, hiddenInTab:true},
     {key:'sack', label:'Sack',   cls:'neg-btn'},
     {key:'safety',label:'Safety',cls:'neg-btn'}
   ]},
   wr:{label:'WR',stats:[
-    {key:'catch',   label:'Kompletní', cls:'td-btn', passResult:'comp'},
-    {key:'drop',    label:'Drop',      cls:'neg-btn',passResult:'incomp'},
-    {key:'td',      label:'TD',        cls:'td-btn',  readonly:true},
-    {key:'confirm1',label:'Potvr. 1b', cls:'td-btn',  readonly:true},
-    {key:'confirm2',label:'Potvr. 2b', cls:'td-btn',  readonly:true},
-    {key:'points',  label:'Body',      cls:'td-btn',  readonly:true}
+    {key:'catch',      label:'Kompletní',  cls:'td-btn', passResult:'comp'},
+    {key:'drop',       label:'Drop',       cls:'neg-btn',passResult:'incomp'},
+    {key:'td',         label:'TD',         cls:'td-btn',  wrTD:true},
+    {key:'confirm1',   label:'Potvr. 1b',  cls:'td-btn',  readonly:true, hiddenInTab:true},
+    {key:'confirm2',   label:'Potvr. 2b',  cls:'td-btn',  readonly:true, hiddenInTab:true},
+    {key:'noconfirm1', label:'Nepotvr. 1b',cls:'neg-btn', readonly:true, hiddenInTab:true, hideInSummary:true},
+    {key:'noconfirm2', label:'Nepotvr. 2b',cls:'neg-btn', readonly:true, hiddenInTab:true, hideInSummary:true},
+    {key:'points',     label:'Body',       cls:'td-btn',  readonly:true, hiddenInTab:true}
   ]},
   def:{label:'Obrana',stats:[
     {key:'flagpull',label:'Flag pull',cls:''},
@@ -191,11 +210,11 @@ const POS={
 };
 
 // ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
-const API_URL = "https://script.google.com/macros/s/AKfycbxwxdhQi4X7CU1Dg0sMflmcxNeAhqp4Ppg08CIRd1oL7BpVY2aeXuDgvtN17Mkdymd5/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzkdsKg2zNbxCfSV5rI_PBClD3N2HoY1Abtwnw_exNbsBJm7oyTh3NPyRjEw03ibr6Mzw/exec";
 
 // Data jsou uložena per tým
 let currentTeam = null;
-let teams = {}; // { teamName: { players, drive, gameNumber, lastQB } }
+let teams = {}; // { teamName: { players, drive, gameNumber, lastQB, half, ourTO, oppTO } }
 try{ const s=localStorage.getItem('ffv9_teams'); if(s) teams=JSON.parse(s); }catch(e){}
 try{ const s=localStorage.getItem('ffv9_currentTeam'); if(s) currentTeam=s; }catch(e){}
 
@@ -221,6 +240,42 @@ let currentTab='qb';
 let pendingPass=null;
 let pendingTD=null;
 let pendingConfirm=null;
+let pendingDefTD=null; // INT TD obranáře — čekáme na potvrzení
+let pendingDefConfirm=null; // {pts, defName} — vybrané body, čekáme na WR
+let pendingConfirmQB=null; // {pts, wrName} — vybrané body, čekáme na QB výběr
+let pendingNoConfirm=null; // {wrName} — bez potvrzení, čekáme na QB výběr
+let pendingOppConfirm=null; // {pts} — obdržené TD, čekáme na výsledek potvrzení
+let pendingFoul=null; // {pos} — čekáme na výběr faulu
+// Drive tracking
+// offDrives: [{result: 'td'|'int'|'manual', half: 1|2}]
+// defDrives: [{result: 'stop'|'td'|'manual', half: 1|2}]
+
+const FOULS = {
+  qb: [
+    {key:'false_start',    label:'False start',              yards:5},
+    {key:'illegal_fwd',    label:'Illegal forward pass',     yards:5},
+    {key:'delay',          label:'Delay of game',            yards:5},
+  ],
+  wr: [
+    {key:'pi_off',         label:'Pass interference',        yards:10},
+    {key:'flag_guard',     label:'Flag guarding',            yards:5},
+    {key:'screen',         label:'Shielding',                yards:5},
+    {key:'illegal_contact',label:'Illegal contact',          yards:10},
+    {key:'jumping',        label:'Illegal jump',             yards:5},
+    {key:'unsport_off',    label:'Unsportsmanlike conduct',  yards:10},
+  ],
+  def: [
+    {key:'pi_def',         label:'Pass interference',        yards:10},
+    {key:'contact_def',    label:'Illegal contact',          yards:10},
+    {key:'offside',        label:'Offside',                  yards:5},
+    {key:'illegal_blitz',  label:'Illegal blitz',            yards:5},
+    {key:'unsport_def',    label:'Unsportsmanlike conduct',  yards:10},
+  ]
+};
+
+function getOffDrives(){ const d=teamData(); if(!d)return []; if(!d.offDrives)d.offDrives=[]; return d.offDrives; }
+function getDefDrives(){ const d=teamData(); if(!d)return []; if(!d.defDrives)d.defDrives=[]; return d.defDrives; }
+function currentHalf(){ const d=teamData(); return d?(d.half||1):1; }
 
 function save(){
   try{
@@ -239,6 +294,7 @@ function doIncrement(pos,name,key,amount){
   if(!p.drives)p.drives=[emptyStats(pos)];
   while(p.drives.length<=di)p.drives.push(emptyStats(pos));
   p.drives[di][key]=(p.drives[di][key]||0)+amount;
+  updateScore();
 }
 function doDecrement(pos,name,key,amount){
   amount=amount||1;
@@ -246,6 +302,7 @@ function doDecrement(pos,name,key,amount){
   p.stats[key]=Math.max(0,(p.stats[key]||0)-amount);
   const di=data.drive-1;
   if(p.drives&&p.drives[di])p.drives[di][key]=Math.max(0,(p.drives[di][key]||0)-amount);
+  updateScore();
 }
 
 function renderTab(pos){
@@ -254,10 +311,7 @@ function renderTab(pos){
   const count=POS[pos].stats.length;
   const cols=count<=4?'repeat('+count+',1fr)':count===5?'repeat(5,1fr)':'repeat(3,1fr)';
 
-  let html=`<div class="add-row">
-    <input type="text" id="inp-${pos}" placeholder="Přidat hráče..." autocomplete="off" onkeydown="if(event.key==='Enter')addPlayer('${pos}')" />
-    <button onclick="addPlayer('${pos}')">Přidat</button>
-  </div>`;
+  let html='';
 
   // Bannery podle stavu
   if(pos==='wr'&&pendingPass&&!pendingTD&&!pendingConfirm){
@@ -266,20 +320,83 @@ function renderTab(pos){
       <button class="pending-cancel" onclick="cancelPass()">Zrušit</button>
     </div>`;
   }
-  if(pos==='qb'&&pendingTD){
+
+  if(pos==='qb'&&pendingDefTD&&!pendingDefConfirm){
     html+=`<div class="pending-bar green">
-      <span>Zachycení: ${pendingTD.wrName} — zmáčkni TD nebo jiný výsledek</span>
-      <button class="pending-cancel" onclick="cancelTD()">Zrušit</button>
+      <span>INT TD: ${pendingDefTD.defName} — potvrzení?</span>
+      <button class="pending-cancel" onclick="cancelDefTD()">Zrušit</button>
+    </div>`;
+    html+=`<div class="confirm-bar">
+      <div class="confirm-bar-title">Potvrzení po INT TD — kolik bodů?</div>
+      <div class="confirm-btns">
+        <button class="confirm-btn" onclick="resolveDefConfirmPts(1)">+1</button>
+        <button class="confirm-btn" onclick="resolveDefConfirmPts(2)">+2</button>
+        <button class="confirm-skip" onclick="startNoConfirmFromDef()">Bez potvrzení</button>
+      </div>
     </div>`;
   }
-  if(pos==='qb'&&pendingConfirm){
+  if(pos==='qb'&&pendingDefConfirm&&!pendingDefConfirm.qbName){
+    const qbPlayers=data.players.filter(p=>p.pos==='qb');
+    html+=`<div class="confirm-bar">
+      <div class="confirm-bar-title">Potvrzení po INT TD (+${pendingDefConfirm.pts}) — kdo házel?</div>
+      <div class="confirm-btns" style="flex-direction:column;gap:7px;">
+        ${qbPlayers.map(p=>'<button class="confirm-btn" style="font-size:15px;padding:12px 8px;" onclick="selectDefConfirmQB(&#39;'+p.name.replace(/'/g,"&#39;")+'&#39;)">'+p.name+'</button>').join('')}
+      </div>
+    </div>`;
+  }
+  if(pos==='qb'&&pendingDefConfirm&&pendingDefConfirm.qbName){
+    const wrPlayers=data.players.filter(p=>p.pos==='wr');
+    html+=`<div class="confirm-bar">
+      <div class="confirm-bar-title">Kdo skóroval potvrzení po INT TD (+${pendingDefConfirm.pts})?</div>
+      <div class="confirm-btns" style="flex-direction:column;gap:7px;">
+        ${wrPlayers.map(p=>'<button class="confirm-btn" style="font-size:15px;padding:12px 8px;" onclick="resolveDefConfirm('+pendingDefConfirm.pts+',&#39;'+p.name.replace(/'/g,"&#39;")+'&#39;)">'+p.name+'</button>').join('')}
+      </div>
+    </div>`;
+  }
+  if(pos==='qb'&&pendingConfirmQB&&!pendingConfirm.qbName){
+    const qbPlayers=data.players.filter(p=>p.pos==='qb');
+    html+=`<div class="confirm-bar">
+      <div class="confirm-bar-title">Kdo házel pass na potvrzení (+${pendingConfirmQB.pts})?</div>
+      <div class="confirm-btns" style="flex-direction:column;gap:7px;">
+        ${qbPlayers.map(p=>'<button class="confirm-btn" style="font-size:15px;padding:12px 8px;" onclick="selectConfirmQB(&#39;'+p.name.replace(/'/g,"&#39;")+'&#39;)">'+p.name+'</button>').join('')}
+      </div>
+    </div>`;
+  }
+  if(pos==='qb'&&pendingNoConfirm&&pendingNoConfirm.pts===null){
+    html+=`<div class="confirm-bar" style="background:#fef0f0;border-color:#f0c0c0;">
+      <div class="confirm-bar-title" style="color:#c0392b;">Bez potvrzení — kolik bodů jste zkoušeli?</div>
+      <div class="confirm-btns">
+        <button class="confirm-btn" style="background:#c0392b;" onclick="selectNoConfirmPts(1)">1 bod</button>
+        <button class="confirm-btn" style="background:#c0392b;" onclick="selectNoConfirmPts(2)">2 body</button>
+      </div>
+    </div>`;
+  }
+  if(pos==='qb'&&pendingNoConfirm&&pendingNoConfirm.pts!==null&&!pendingNoConfirm.qbName){
+    const qbPlayers=data.players.filter(p=>p.pos==='qb');
+    html+=`<div class="confirm-bar" style="background:#fef0f0;border-color:#f0c0c0;">
+      <div class="confirm-bar-title" style="color:#c0392b;">Bez potvrzení (${pendingNoConfirm.pts}b) — kdo házel?</div>
+      <div class="confirm-btns" style="flex-direction:column;gap:7px;">
+        ${qbPlayers.map(p=>'<button class="confirm-btn" style="font-size:15px;padding:12px 8px;background:#c0392b;" onclick="selectNoConfirmQB(&#39;'+p.name.replace(/'/g,"&#39;")+'&#39;)">'+p.name+'</button>').join('')}
+      </div>
+    </div>`;
+  }
+  if(pos==='qb'&&pendingNoConfirm&&pendingNoConfirm.qbName){
+    const wrPlayers=data.players.filter(p=>p.pos==='wr');
+    html+=`<div class="confirm-bar" style="background:#fef0f0;border-color:#f0c0c0;">
+      <div class="confirm-bar-title" style="color:#c0392b;">Bez potvrzení — kdo dropnul?</div>
+      <div class="confirm-btns" style="flex-direction:column;gap:7px;">
+        ${wrPlayers.map(p=>'<button class="confirm-btn" style="font-size:15px;padding:12px 8px;background:#c0392b;" onclick="resolveNoConfirm(&#39;'+p.name.replace(/'/g,"&#39;")+'&#39;)">'+p.name+'</button>').join('')}
+      </div>
+    </div>`;
+  }
+  if(pos==='qb'&&pendingConfirm&&!pendingConfirmQB){
     if(!pendingConfirm.pts){
       html+=`<div class="confirm-bar">
         <div class="confirm-bar-title">Potvrzení po TD — kolik bodů?</div>
         <div class="confirm-btns">
           <button class="confirm-btn" onclick="resolveConfirmPts(1)">+1</button>
           <button class="confirm-btn" onclick="resolveConfirmPts(2)">+2</button>
-          <button class="confirm-skip" onclick="resolveConfirm(0,null)">Bez potvrzení</button>
+          <button class="confirm-skip" onclick="startNoConfirm()">Bez potvrzení</button>
         </div>
       </div>`;
     } else {
@@ -293,6 +410,13 @@ function renderTab(pos){
     }
   }
 
+  // Tlačítka soupeře jen na DEF záložce
+  if(pos==='def'){
+    const oppTD = (teamData()&&teamData().oppTD)||0;
+    html+=`<div style="margin-bottom:10px;">
+    </div>`;
+  }
+
   // INT tlačítko a Nekomp jen na WR záložce
   if(pos==='wr'){
     html+=`<div style="display:flex;gap:8px;margin-bottom:10px;">
@@ -300,15 +424,62 @@ function renderTab(pos){
         <span class="val" style="font-size:18px;">—</span>
         <span class="lbl">Nekomp.<br>minul WR</span>
       </button>` : '<div style="flex:1"></div>'}
-      <button class="stat-btn neg-btn" style="flex:1;border-radius:12px;padding:12px;" onclick="handleWrInt()">
-        <span class="val">${(()=>{const qb=data.players.find(p=>p.pos==='qb'&&p.name===data.lastQB);return qb?(qb.stats.int||0):0;})()} </span>
+      ${pendingPass ? `<button class="stat-btn neg-btn" style="flex:1;border-radius:12px;padding:12px;" onclick="handleWrInt()">
+        <span class="val">${(()=>{const qb=data.players.find(p=>p.pos==='qb'&&p.name===data.lastQB);return qb?(qb.stats.int||0):0;})()}</span>
         <span class="lbl">INT → QB</span>
-      </button>
+      </button>` : '<div style="flex:1"></div>'}
     </div>`;
   }
 
+  // Opp confirm panel na DEF záložce
+  if(pos==='def'&&pendingOppConfirm){
+    if(pendingOppConfirm.pts===null){
+      html+=`<div class="confirm-bar" style="background:#fef0f0;border-color:#f0c0c0;">
+        <div class="confirm-bar-title" style="color:#c0392b;">Potvrzení soupeře po TD — kolik bodů?</div>
+        <div class="confirm-btns">
+          <button class="confirm-btn" style="background:#c0392b;" onclick="oppConfirmPts(1)">+1</button>
+          <button class="confirm-btn" style="background:#c0392b;" onclick="oppConfirmPts(2)">+2</button>
+
+        </div>
+      </div>`;
+    } else if(pendingOppConfirm.pts>0){
+      html+=`<div class="confirm-bar" style="background:#fef0f0;border-color:#f0c0c0;">
+        <div class="confirm-bar-title" style="color:#c0392b;">Potvrzení soupeře (+${pendingOppConfirm.pts}) — výsledek?</div>
+        <div class="confirm-btns">
+          <button class="confirm-btn" style="background:#c0392b;" onclick="resolveOppConfirm(true)">Úspěšné</button>
+          <button class="confirm-btn" style="background:#27ae60;" onclick="resolveOppConfirm(false)">Ubráněno</button>
+        </div>
+      </div>`;
+    }
+  }
+
+  // Foul picker
+  if(pendingFoul&&pendingFoul.pos===pos){
+    const fouls=FOULS[pos]||[];
+    let foulHtml='<div class="confirm-bar" style="background:#fff8e1;border-color:#f6c90e;"><div class="confirm-bar-title" style="color:#7a5c00;">Vyber foul</div><div class="confirm-btns" style="flex-direction:column;gap:6px;">';
+    fouls.forEach(f=>{
+      const lbl=f.label;
+      foulHtml+='<button class="confirm-btn" style="font-size:14px;padding:10px 8px;background:#f6c90e;color:#7a5c00;" onclick="recordFoul(&#39;'+f.key+'&#39;)">'+lbl+'</button>';
+    });
+    foulHtml+='<button class="confirm-skip" style="margin-top:2px;" onclick="cancelFoul()">Zrušit</button></div></div>';
+    html+=foulHtml;
+  }
+
+  if(pos==='wr'||pos==='def'){
+    const dAct=teamData();
+
+
+  }
+  const dActUD=teamData();
+  const offActiveUD=dActUD&&dActUD.offDriveActive;
   if(players.length){
-    html+=`<div class="undo-row"><button class="undo-btn" onclick="undoLast()">↩ Zpět</button></div>`;
+    html+=`<div class="undo-row">
+      ${FOULS[pos]?`<button class="undo-btn" style="border-color:#f6c90e;color:#7a5c00;background:#fff8e1;" onclick="showFoulPicker('${pos}')">Faul</button>`:'<div></div>'}
+      ${pos==='qb'?`<button class="undo-btn" style="border-color:#f0c0c0;color:#c0392b;background:#fef0f0;flex:1;" onclick="endDrive('off','manual')">Konec drivu</button>`:''}
+      ${pos==='def'?`<button class="undo-btn" style="border-color:#f0c0c0;color:#c0392b;background:#fef0f0;flex:1;" onclick="oppScore('td')">TD</button>`:''}
+      ${pos==='def'?`<button class="undo-btn" style="border-color:#6fcf97;color:#0a7c3e;background:#e8f8ee;flex:2;" onclick="endDrive('def','manual')">Ubráněný drive</button>`:''}
+      <button class="undo-btn" onclick="undoLast()">↩ Zpět</button>
+    </div>`;
   } else {
     html+=`<div class="empty">Přidej hráče výše</div>`;
   }
@@ -322,11 +493,21 @@ function renderTab(pos){
       <div class="stat-grid" style="grid-template-columns:${cols}">
         ${POS[pos].stats.map(s=>{
           const hint=s.isPass?`<span class="hint">→ WR</span>`:s.isTD&&pendingTD?`<span class="hint">→ potvrzení</span>`:s.qbInt?`<span class="hint">→ QB</span>`:'';
+          if(s.hiddenInTab) return '';
           if(s.readonly){
             return `<div class="stat-info">
               <span class="val">${p.stats[s.key]||0}</span>
               <span class="lbl">${s.label}</span>
             </div>`;
+          }
+          if(s.conditionalActive){
+            const isActive = pendingTD && pendingTD.qbName === p.name;
+            if(!isActive){
+              return `<div class="stat-info" style="background:var(--color-background-secondary,#f5f5f5);">
+                <span class="val" style="color:#ccc;">${p.stats[s.key]||0}</span>
+                <span class="lbl" style="color:#ccc;">${s.label}</span>
+              </div>`;
+            }
           }
           const displayVal = s.qbInt && data.lastQB
             ? (()=>{ const qb=data.players.find(pl=>pl.pos==='qb'&&pl.name===data.lastQB); return qb?(qb.stats.int||0):0; })()
@@ -341,6 +522,11 @@ function renderTab(pos){
       </div>
     </div>`;
   });
+
+  html+=`<div class="add-row" style="margin-top:10px;">
+    <input type="text" id="inp-${pos}" placeholder="Přidat hráče..." autocomplete="off" onkeydown="if(event.key==='Enter')addPlayer('${pos}')" />
+    <button onclick="addPlayer('${pos}')">Přidat</button>
+  </div>`;
 
   el.innerHTML=html;
 }
@@ -365,7 +551,18 @@ function handleBtn(pos,name,key,btn){
     history.push({type:'pass',qbName:name});
     doIncrement('qb',name,'pass');
     pendingPass={qbName:name};
+    pendingTD=null;
+    pendingConfirm=null;
+    pendingConfirmQB=null;
+    pendingNoConfirm=null;
     data.lastQB=name;
+    // Start offensive drive if not already active
+    const d=teamData();
+    if(d&&!d.offDriveActive){
+      d.offDriveActive=true;
+      if(!d.offDrives)d.offDrives=[];
+      d.offDrives.push({result:null,half:currentHalf()});
+    }
     save();
     btn.querySelector('.val').textContent=getPlayer('qb',name).stats['pass'];
     setTimeout(()=>switchTab('wr',document.getElementById('tab-btn-wr')),120);
@@ -399,25 +596,151 @@ function handleBtn(pos,name,key,btn){
     return;
   }
 
-  // 4. QB TD (v rámci pendingTD flow) → přičti QB TD + WR TD + 6 bodů, zobraz potvrzení
-  if(pos==='qb'&&key==='td'&&pendingTD){
-    const {qbName:qbn,wrName}=pendingTD;
-    if(qbn!==name){
-      // jiný QB klepnul na TD — ignorujeme flow, normální increment
-    } else {
-      history.push({type:'td',qbName:name,wrName});
-      doIncrement('qb',name,'td');
-      doIncrement('wr',wrName,'td');
-      doIncrement('wr',wrName,'points',6);
-      pendingTD=null;
-      pendingConfirm={qbName:name,wrName};
+
+
+
+
+  // QB Safety → přičte 2 body soupeři + sack QB
+  if(pos==='qb'&&key==='safety'){
+    history.push({type:'qbSafety',pos,name});
+    doIncrement(pos,name,'safety');
+    doIncrement(pos,name,'sack');
+    const dQbS=teamData();
+    if(dQbS){
+      if(!dQbS.opp)dQbS.opp={td:0,confirm1:0,confirm2:0,sack:0};
+      dQbS.opp.sack=(dQbS.opp.sack||0)+1;
+      // End offensive drive - failure always
+      if(!dQbS.offDrives)dQbS.offDrives=[];
+      if(dQbS.offDriveActive&&dQbS.offDrives.length){
+        dQbS.offDrives[dQbS.offDrives.length-1].result='manual';
+        dQbS.offDriveActive=false;
+      } else {
+        dQbS.offDrives.push({result:'manual',half:currentHalf()});
+      }
+    }
+    save();
+    updateScore();
+    renderTab('qb');
+    setTimeout(()=>switchTab('def',document.getElementById('tab-btn-def')),120);
+    return;
+  }
+
+  // DEF INT → úspěšný konec drivu obrany, přepni na QB
+  if(pos==='def'&&key==='int'){
+    history.push({type:'normal',pos,name,key});
+    doIncrement(pos,name,key);
+    const dDefInt=teamData();
+    if(dDefInt){
+      if(!dDefInt.defDrives)dDefInt.defDrives=[];
+      dDefInt.defDrives.push({result:'stop',half:currentHalf()});
+      // Also end offensive drive as failure
+      if(dDefInt.offDriveActive&&dDefInt.offDrives&&dDefInt.offDrives.length){
+        dDefInt.offDrives[dDefInt.offDrives.length-1].result='int';
+        dDefInt.offDriveActive=false;
+      }
+    }
+    save();
+    renderTab('def');
+    setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+    return;
+  }
+
+  // DEF INT TD → spustí potvrzení flow + přičte INT
+  if(pos==='def'&&key==='inttd'){
+    const lastQB=data.lastQB||null;
+    history.push({type:'defTD',defName:name,qbName:lastQB});
+    doIncrement('def',name,'inttd');
+    doIncrement('def',name,'int');
+    if(lastQB) doIncrement('qb',lastQB,'comp');
+    // End defensive drive - INT TD success
+    const dIntTD=teamData();
+    if(dIntTD){
+      if(!dIntTD.defDrives)dIntTD.defDrives=[];
+      dIntTD.defDrives.push({result:'stop',half:currentHalf()});
+      // Also end offensive drive as failure
+      if(dIntTD.offDriveActive&&dIntTD.offDrives&&dIntTD.offDrives.length){
+        dIntTD.offDrives[dIntTD.offDrives.length-1].result='int';
+        dIntTD.offDriveActive=false;
+      }
+    }
+    pendingDefTD={defName:name};
+    save();
+    renderTab('def');
+    setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+    return;
+  }
+
+  // WR TD → spustí TD flow (přičte QB TD, WR TD, 6 bodů, potvrzení)
+  if(pos==='wr'&&key==='td'){
+    if(!pendingTD){
+      // TD bez předchozího passu — přičti jen WR TD a 6 bodů
+      // Najdi posledního QB
+      const lastQBName=data.lastQB||null;
+      history.push({type:'wrTDdirect',wrName:name,qbName:lastQBName});
+      if(lastQBName) doIncrement('qb',lastQBName,'comp');
+      doIncrement('wr',name,'catch');
+      doIncrement('wr',name,'td');
+      doIncrement('wr',name,'points',6);
+      pendingConfirm=null;
+      pendingConfirmQB=null;
+      pendingNoConfirm=null;
+      pendingConfirm={qbName:null,wrName:name,addPass:true};
+      // End offensive drive - TD success
+      const dDir=teamData();
+      if(dDir){
+        if(!dDir.offDrives)dDir.offDrives=[];
+        if(dDir.offDriveActive&&dDir.offDrives.length){
+          dDir.offDrives[dDir.offDrives.length-1].result='td';
+        } else {
+          dDir.offDrives.push({result:'td',half:currentHalf()});
+        }
+        dDir.offDriveActive=false;
+      }
       save();
-      renderTab('qb');
+      renderTab('wr');
+      setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+      return;
+    }
+    // TD po zachyceném passu — normální flow
+    const {qbName,wrName:pwr}=pendingTD;
+    if(pwr!==name){
+      // Jiný WR klikl na TD — ignoruj flow, normální increment
+    } else {
+      history.push({type:'td',qbName,wrName:name});
+      doIncrement('qb',qbName,'td');
+      doIncrement('wr',name,'td');
+      doIncrement('wr',name,'points',6);
+      pendingTD=null;
+      pendingConfirm=null;
+      pendingConfirmQB=null;
+      pendingNoConfirm=null;
+      pendingDefTD=null;
+      pendingDefConfirm=null;
+      pendingConfirm={qbName,wrName:name,addPass:false};
+      save();
+      renderTab('wr');
+      setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
       return;
     }
   }
 
-
+  // DEF Safety → přičte i sack
+  if(pos==='def'&&key==='safety'){
+    history.push({type:'defSafety',defName:name});
+    doIncrement('def',name,'safety');
+    doIncrement('def',name,'sack');
+    // End defensive drive - success
+    const dDefS=teamData();
+    if(dDefS){
+      // End defensive drive - success only
+      if(!dDefS.defDrives)dDefS.defDrives=[];
+      dDefS.defDrives.push({result:'stop',half:currentHalf()});
+    }
+    save();
+    renderTab('def');
+    setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+    return;
+  }
 
   // Normální klepnutí
   history.push({type:'normal',pos,name,key});
@@ -428,6 +751,8 @@ function handleBtn(pos,name,key,btn){
 
 function resolveConfirmPts(pts){
   if(!pendingConfirm)return;
+  // Přejdi na výběr QB
+  pendingConfirmQB={pts:pts, wrName:pendingConfirm.wrName};
   pendingConfirm.pts=pts;
   renderTab('qb');
 }
@@ -435,14 +760,21 @@ function resolveConfirmPts(pts){
 function resolveConfirm(pts,wrName){
   if(!pendingConfirm)return;
   const qbName=pendingConfirm.qbName;
-  history.push({type:'confirm',wrName,pts,qbName});
+  const addPassFlag = pendingConfirm&&pendingConfirm.addPass===true;
+  history.push({type:'confirm',wrName,pts,qbName,addPass:addPassFlag});
   if(pts>0&&wrName){
     doIncrement('wr',wrName,'catch');
     const confirmKey = pts===1?'confirm1':'confirm2';
     doIncrement('wr',wrName,confirmKey);
     doIncrement('wr',wrName,'points',pts);
-    doIncrement('qb',qbName,'pass');
-    doIncrement('qb',qbName,'comp');
+    if(qbName){
+      // addPass: true = přímý TD (bez předchozího Pass kliknutí) → přidej pass+comp
+      // addPass: false = TD po Pass kliknutí → přidej jen comp
+      if(pendingConfirm&&pendingConfirm.addPass===true){
+        doIncrement('qb',qbName,'pass');
+      }
+      doIncrement('qb',qbName,'comp');
+    }
   }
   pendingConfirm=null;
   save();
@@ -496,7 +828,7 @@ function undoLast(){
       doDecrement('wr',last.wrName,confirmKey);
       doDecrement('wr',last.wrName,'points',last.pts);
       if(last.qbName){
-        doDecrement('qb',last.qbName,'pass');
+        if(last.addPass) doDecrement('qb',last.qbName,'pass');
         doDecrement('qb',last.qbName,'comp');
       }
     }
@@ -506,10 +838,66 @@ function undoLast(){
       doDecrement('qb',last.qbName,'incomp');
       doDecrement('qb',last.qbName,'int');
     }
+  } else if(last.type==='oppScore'){
+    const d=teamData();
+    if(d&&d.opp){
+      if(last.scoreType==='td'&&(d.opp.td||0)>0) d.opp.td--;
+      else if(last.scoreType==='confirm1'&&(d.opp.confirm1||0)>0) d.opp.confirm1--;
+      else if(last.scoreType==='confirm2'&&(d.opp.confirm2||0)>0) d.opp.confirm2--;
+    }
+    save();
+    updateScore();
+  } else if(last.type==='defTD'){
+    doDecrement('def',last.defName,'inttd');
+    doDecrement('def',last.defName,'int');
+    if(last.qbName) doDecrement('qb',last.qbName,'comp');
+    pendingDefTD=null;
+    pendingDefConfirm=null;
+  } else if(last.type==='defConfirm'){
+    if(last.pts>0&&last.wrName){
+      doDecrement('wr',last.wrName,'catch');
+      const confirmKey=last.pts===1?'confirm1':'confirm2';
+      doDecrement('wr',last.wrName,confirmKey);
+      doDecrement('wr',last.wrName,'points',last.pts);
+      if(last.qbName){
+        doDecrement('qb',last.qbName,'pass');
+        doDecrement('qb',last.qbName,'comp');
+      }
+    }
+  } else if(last.type==='qbSafety'){
+    doDecrement(last.pos,last.name,'safety');
+    doDecrement(last.pos,last.name,'sack');
+    const d=teamData();
+    if(d&&d.opp&&(d.opp.sack||0)>0)d.opp.sack--;
+    updateScore();
+  } else if(last.type==='noConfirm'){
+    if(last.qbName){
+      doDecrement('qb',last.qbName,'pass');
+      doDecrement('qb',last.qbName,'incomp');
+    }
+    if(last.wrName){
+      doDecrement('wr',last.wrName,'drop');
+      const noConfirmKey=last.pts===1?'noconfirm1':'noconfirm2';
+      doDecrement('wr',last.wrName,noConfirmKey);
+    }
+  } else if(last.type==='wrTDdirect'){
+    if(last.qbName) doDecrement('qb',last.qbName,'comp');
+    doDecrement('wr',last.wrName,'catch');
+    doDecrement('wr',last.wrName,'td');
+    doDecrement('wr',last.wrName,'points',6);
+    pendingConfirm=null;
+  } else if(last.type==='defSafety'){
+    doDecrement('def',last.defName,'safety');
+    doDecrement('def',last.defName,'sack');
   } else if(last.type==='noTarget'){
     doDecrement('qb',last.qbName,'incomp');
+  } else if(last.type==='foul'){
+    const d=teamData();
+    if(d&&d.fouls&&(d.fouls[last.key]||0)>0) d.fouls[last.key]--;
+    save();
   } else if(last.type==='normal'){
     doDecrement(last.pos,last.name,last.key);
+
   }
   save();
   renderTab(currentTab);
@@ -528,10 +916,10 @@ function deletePlayer(pos,name){
 function nextDrive(){
   if(!confirm('Ukončit Drive '+data.drive+' a spustit nový?'))return;
   data.drive++;
-  pendingPass=null;pendingTD=null;pendingConfirm=null;
+  pendingPass=null;pendingTD=null;pendingConfirm=null;pendingDefTD=null;pendingDefConfirm=null;pendingConfirmQB=null;pendingNoConfirm=null;pendingOppConfirm=null;
   data.players.forEach(p=>{if(!p.drives)p.drives=[];p.drives.push(emptyStats(p.pos));});
   save();
-  document.getElementById('drive-badge').textContent='Drive '+data.drive;
+  updateScore();
   ['qb','wr','def'].forEach(renderTab);
   renderSummary();
 }
@@ -543,9 +931,21 @@ function resetAll(){
     p.drives=[emptyStats(p.pos)];
   });
   data.drive=1;
+  const d=teamData();
+  if(d){
+    d.opp={td:0,confirm1:0,confirm2:0,sack:0};
+    d.ourTO=0;
+    d.oppTO=0;
+    d.half=1;
+    d.offDrives=[];
+    d.defDrives=[];
+    d.offDriveActive=false;
+    d.halfTwoDriveStart=null;
+    d.fouls={};
+  }
   save();history=[];
-  pendingPass=null;pendingTD=null;pendingConfirm=null;
-  document.getElementById('drive-badge').textContent='Drive 1';
+  pendingPass=null;pendingTD=null;pendingConfirm=null;pendingDefTD=null;pendingDefConfirm=null;pendingConfirmQB=null;pendingNoConfirm=null;pendingOppConfirm=null;
+  updateScore();
   ['qb','wr','def'].forEach(renderTab);
   renderSummary();
 }
@@ -562,7 +962,7 @@ function renderSummary(){
   </div>
   <div class="summary-top">
     <span>${data.players.length} hráčů &bull; Drive ${data.drive}</span>
-    <button class="new-drive-btn" onclick="nextDrive()">+ Nový drive</button>
+    <button class="new-drive-btn" onclick="nextHalf()">+ Nový poločas</button>
   </div>`;
   let anyPlayer=false;
   sections.forEach(sec=>{
@@ -590,19 +990,45 @@ function renderSummary(){
       <p>${dateStr}</p>
     </div>`;
 
+  // Pomocná funkce pro součet statistik podle poločasu
+  const d=teamData();
+  const h2start = d ? (d.halfTwoDriveStart||null) : null;
+  const hasHalves = h2start !== null;
+
+  function sumStats(player, fromDrive, toDrive){
+    const s={};
+    if(!player.drives) return player.stats;
+    const drives = player.drives.slice(fromDrive, toDrive===undefined?undefined:toDrive);
+    drives.forEach(dr=>{ Object.keys(dr).forEach(k=>{ s[k]=(s[k]||0)+(dr[k]||0); }); });
+    return s;
+  }
+
   // QB analytika
   const qbPlayers=data.players.filter(p=>p.pos==='qb');
   if(qbPlayers.length){
     html+=`<div class="an-section">QB — přihrávky</div>`;
-    html+=`<table class="an-table"><thead><tr><th>Hráč</th><th>Pass</th><th>Komplet.</th><th>% Komplet.</th><th>TD</th><th>INT</th><th>TD/INT</th></tr></thead><tbody>`;
+    const qbCols = hasHalves
+      ? `<th>Hráč</th><th colspan="3">1. poločas</th><th colspan="3">2. poločas</th><th colspan="3">Celkem</th>`
+      : `<th>Hráč</th><th>Pass</th><th>Komplet.</th><th>% Komplet.</th><th>TD</th><th>INT</th>`;
+    html+=`<table class="an-table"><thead><tr>${qbCols}</tr>`;
+    if(hasHalves) html+=`<tr><th></th><th>Pass</th><th>Kpl.</th><th>%</th><th>Pass</th><th>Kpl.</th><th>%</th><th>Pass</th><th>Kpl.</th><th>%</th></tr>`;
+    html+=`</thead><tbody>`;
     qbPlayers.forEach(p=>{
-      const pass=p.stats.pass||0;
-      const comp=p.stats.comp||0;
-      const td=p.stats.td||0;
-      const int_=p.stats.int||0;
-      const pct=pass>0?Math.round(comp/pass*100):0;
-      const tdint=int_>0?(td/int_).toFixed(1):'—';
-      html+=`<tr><td class="an-name">${p.name}</td><td>${pass}</td><td>${comp}</td><td class="an-good">${pct}%</td><td class="an-good">${td}</td><td class="an-bad">${int_}</td><td>${tdint}</td></tr>`;
+      const tot=p.stats;
+      if(hasHalves){
+        const h1=sumStats(p,0,h2start);
+        const h2=sumStats(p,h2start);
+        const pct1=h1.pass>0?Math.round((h1.comp||0)/h1.pass*100):0;
+        const pct2=h2.pass>0?Math.round((h2.comp||0)/h2.pass*100):0;
+        const pctT=tot.pass>0?Math.round((tot.comp||0)/tot.pass*100):0;
+        html+=`<tr><td class="an-name">${p.name}</td>
+          <td>${h1.pass||0}</td><td>${h1.comp||0}</td><td class="${pct1>=60?'an-good':'an-warn'}">${pct1}%</td>
+          <td>${h2.pass||0}</td><td>${h2.comp||0}</td><td class="${pct2>=60?'an-good':'an-warn'}">${pct2}%</td>
+          <td>${tot.pass||0}</td><td>${tot.comp||0}</td><td class="${pctT>=60?'an-good':'an-warn'}">${pctT}%</td></tr>`;
+      } else {
+        const pct=tot.pass>0?Math.round((tot.comp||0)/tot.pass*100):0;
+        html+=`<tr><td class="an-name">${p.name}</td><td>${tot.pass||0}</td><td>${tot.comp||0}</td><td class="${pct>=60?'an-good':'an-warn'}">${pct}%</td><td class="an-good">${tot.td||0}</td><td class="an-bad">${tot.int||0}</td></tr>`;
+      }
     });
     html+=`</tbody></table>`;
   }
@@ -611,17 +1037,32 @@ function renderSummary(){
   const wrPlayers=data.players.filter(p=>p.pos==='wr');
   if(wrPlayers.length){
     html+=`<div class="an-section">WR — příjmy a potvrzení</div>`;
-    html+=`<table class="an-table"><thead><tr><th>Hráč</th><th>Komplet.</th><th>Drop</th><th>% Úsp.</th><th>TD</th><th>Potvr.1b</th><th>Potvr.2b</th><th>% Potvr./TD</th></tr></thead><tbody>`;
+    const wrCols = hasHalves
+      ? `<th>Hráč</th><th colspan="3">1. poločas</th><th colspan="3">2. poločas</th><th colspan="3">Celkem</th>`
+      : `<th>Hráč</th><th>Komplet.</th><th>Drop</th><th>% Úsp.</th><th>TD</th><th>Potvr.1b</th><th>Potvr.2b</th>`;
+    html+=`<table class="an-table"><thead><tr>${wrCols}</tr>`;
+    if(hasHalves) html+=`<tr><th></th><th>Kpl.</th><th>Drop</th><th>%</th><th>Kpl.</th><th>Drop</th><th>%</th><th>Kpl.</th><th>Drop</th><th>%</th></tr>`;
+    html+=`</thead><tbody>`;
     wrPlayers.forEach(p=>{
-      const catch_=p.stats.catch||0;
-      const drop=p.stats.drop||0;
-      const td=p.stats.td||0;
-      const c1=p.stats.confirm1||0;
-      const c2=p.stats.confirm2||0;
-      const totalAttempts=catch_+drop;
-      const catchPct=totalAttempts>0?Math.round(catch_/totalAttempts*100):0;
-      const confirmPct=td>0?Math.round((c1+c2)/td*100):0;
-      html+=`<tr><td class="an-name">${p.name}</td><td>${catch_}</td><td class="an-bad">${drop}</td><td class="${catchPct>=70?'an-good':'an-warn'}">${catchPct}%</td><td class="an-good">${td}</td><td>${c1}</td><td>${c2}</td><td class="${confirmPct>=50?'an-good':'an-warn'}">${confirmPct}%</td></tr>`;
+      const tot=p.stats;
+      if(hasHalves){
+        const h1=sumStats(p,0,h2start);
+        const h2=sumStats(p,h2start);
+        const att1=(h1.catch||0)+(h1.drop||0);
+        const att2=(h2.catch||0)+(h2.drop||0);
+        const attT=(tot.catch||0)+(tot.drop||0);
+        const pct1=att1>0?Math.round((h1.catch||0)/att1*100):0;
+        const pct2=att2>0?Math.round((h2.catch||0)/att2*100):0;
+        const pctT=attT>0?Math.round((tot.catch||0)/attT*100):0;
+        html+=`<tr><td class="an-name">${p.name}</td>
+          <td>${h1.catch||0}</td><td class="an-bad">${h1.drop||0}</td><td class="${pct1>=70?'an-good':'an-warn'}">${pct1}%</td>
+          <td>${h2.catch||0}</td><td class="an-bad">${h2.drop||0}</td><td class="${pct2>=70?'an-good':'an-warn'}">${pct2}%</td>
+          <td>${tot.catch||0}</td><td class="an-bad">${tot.drop||0}</td><td class="${pctT>=70?'an-good':'an-warn'}">${pctT}%</td></tr>`;
+      } else {
+        const att=(tot.catch||0)+(tot.drop||0);
+        const pct=att>0?Math.round((tot.catch||0)/att*100):0;
+        html+=`<tr><td class="an-name">${p.name}</td><td>${tot.catch||0}</td><td class="an-bad">${tot.drop||0}</td><td class="${pct>=70?'an-good':'an-warn'}">${pct}%</td><td class="an-good">${tot.td||0}</td><td>${tot.confirm1||0}</td><td>${tot.confirm2||0}</td></tr>`;
+      }
     });
     html+=`</tbody></table>`;
   }
@@ -635,18 +1076,101 @@ function renderSummary(){
   const totalC2=wrPlayers.reduce((s,p)=>s+(p.stats.confirm2||0),0);
   const totalPts=wrPlayers.reduce((s,p)=>s+(p.stats.points||0),0);
   const teamPct=totalPass>0?Math.round(totalComp/totalPass*100):0;
+  // Half totals
+  const h2s=h2start;
+  const h1Pass=hasHalves?qbPlayers.reduce((s,p)=>s+((sumStats(p,0,h2s).pass)||0),0):null;
+  const h1Comp=hasHalves?qbPlayers.reduce((s,p)=>s+((sumStats(p,0,h2s).comp)||0),0):null;
+  const h2Pass=hasHalves?qbPlayers.reduce((s,p)=>s+((sumStats(p,h2s).pass)||0),0):null;
+  const h2Comp=hasHalves?qbPlayers.reduce((s,p)=>s+((sumStats(p,h2s).comp)||0),0):null;
+  const h1Pct=h1Pass>0?Math.round(h1Comp/h1Pass*100):0;
+  const h2Pct=h2Pass>0?Math.round(h2Comp/h2Pass*100):0;
 
   html+=`<div class="an-section">Tým — celkové statistiky</div>`;
-  html+=`<table class="an-table"><thead><tr><th>Ukazatel</th><th>Hodnota</th></tr></thead><tbody>
-    <tr><td>% kompletních přihrávek</td><td class="an-good">${teamPct}%</td></tr>
-    <tr><td>Celkem dropů</td><td class="an-bad">${totalDrop}</td></tr>
-    <tr><td>Celkem TD</td><td class="an-good">${totalTD}</td></tr>
-    <tr><td>Potvrzení za 1 bod</td><td>${totalC1}</td></tr>
-    <tr><td>Potvrzení za 2 body</td><td>${totalC2}</td></tr>
-    <tr><td>Celkem bodů</td><td class="an-good">${totalPts}</td></tr>
+  const totalNC1=wrPlayers.reduce((s,p)=>s+(p.stats.noconfirm1||0),0);
+  const totalNC2=wrPlayers.reduce((s,p)=>s+(p.stats.noconfirm2||0),0);
+  const attempts1=totalC1+totalNC1;
+  const attempts2=totalC2+totalNC2;
+  const confirmPct1=attempts1>0?Math.round(totalC1/attempts1*100):0;
+  const confirmPct2=attempts2>0?Math.round(totalC2/attempts2*100):0;
+  const confirmPctAll=(attempts1+attempts2)>0?Math.round((totalC1+totalC2)/(attempts1+attempts2)*100):0;
+  html+=`<table class="an-table"><thead><tr><th>Ukazatel</th>${hasHalves?'<th>1. pol.</th><th>2. pol.</th>':''}<th>Celkem</th><th>%</th></tr></thead><tbody>
+    <tr><td>% kompletních přihrávek</td>${hasHalves?`<td>${h1Comp}/${h1Pass} (${h1Pct}%)</td><td>${h2Comp}/${h2Pass} (${h2Pct}%)</td>`:''}<td class="an-good">${totalComp}/${totalPass}</td><td class="an-good">${teamPct}%</td></tr>
+    <tr><td>Celkem dropů</td><td class="an-bad">${totalDrop}</td><td></td></tr>
+    <tr><td>Celkem TD</td><td class="an-good">${totalTD}</td><td></td></tr>
+    <tr><td>Potvrzení za 1b (úspěšné/pokusy)</td><td>${totalC1}/${attempts1}</td><td class="${confirmPct1>=50?'an-good':'an-warn'}">${confirmPct1}%</td></tr>
+    <tr><td>Potvrzení za 2b (úspěšné/pokusy)</td><td>${totalC2}/${attempts2}</td><td class="${confirmPct2>=50?'an-good':'an-warn'}">${confirmPct2}%</td></tr>
+    <tr><td>Celková úspěšnost potvrzení</td><td>${totalC1+totalC2}/${attempts1+attempts2}</td><td class="${confirmPctAll>=50?'an-good':'an-warn'}">${confirmPctAll}%</td></tr>
+    <tr><td>Celkem bodů</td><td class="an-good">${totalPts}</td><td></td></tr>
   </tbody></table>`;
+  // Obranné potvrzení
+  const dTeam=teamData();
+  const oppNC1=dTeam?(dTeam.opp&&dTeam.opp.noconfirm1||0):0;
+  const oppNC2=dTeam?(dTeam.opp&&dTeam.opp.noconfirm2||0):0;
+  const oppC1=dTeam?(dTeam.opp&&dTeam.opp.confirm1||0):0;
+  const oppC2=dTeam?(dTeam.opp&&dTeam.opp.confirm2||0):0;
+  const oppAtt1=oppC1+oppNC1;
+  const oppAtt2=oppC2+oppNC2;
+  const defConf1pct=oppAtt1>0?Math.round(oppNC1/oppAtt1*100):0;
+  const defConf2pct=oppAtt2>0?Math.round(oppNC2/oppAtt2*100):0;
+  if(oppAtt1+oppAtt2>0){
+    html+=`<div class="an-section">Obrana — ubráněná potvrzení</div>`;
+    html+=`<table class="an-table"><thead><tr><th>Typ</th><th>Ubráněno/Pokusy</th><th>%</th></tr></thead><tbody>
+      <tr><td>Potvrzení za 1b</td><td>${oppNC1}/${oppAtt1}</td><td class="${defConf1pct>=50?'an-good':'an-warn'}">${defConf1pct}%</td></tr>
+      <tr><td>Potvrzení za 2b</td><td>${oppNC2}/${oppAtt2}</td><td class="${defConf2pct>=50?'an-good':'an-warn'}">${defConf2pct}%</td></tr>
+    </tbody></table>`;
+  }
 
   html+=`</div>`;
+  // Drive analytika
+  const offDrives=getOffDrives();
+  const defDrives=getDefDrives();
+  if(offDrives.length||defDrives.length){
+    html+=`<div class="an-section">Drivy</div>`;
+    const offTotal=offDrives.filter(d=>d.result).length;
+    const offTD=offDrives.filter(d=>d.result==='td').length;
+    const offTDpct=offTotal>0?Math.round(offTD/offTotal*100):0;
+    const defTotal=defDrives.length;
+    const defStop=defDrives.filter(d=>d.result==='stop'||d.result==='manual').length;
+    const defStopPct=defTotal>0?Math.round(defStop/defTotal*100):0;
+
+    // Per half
+    const off1=offDrives.filter(d=>d.half===1&&d.result);
+    const off2=offDrives.filter(d=>d.half===2&&d.result);
+    const def1=defDrives.filter(d=>d.half===1);
+    const def2=defDrives.filter(d=>d.half===2);
+    const off1TD=off1.filter(d=>d.result==='td').length;
+    const off2TD=off2.filter(d=>d.result==='td').length;
+    const def1Stop=def1.filter(d=>d.result==='stop'||d.result==='manual').length;
+    const def2Stop=def2.filter(d=>d.result==='stop'||d.result==='manual').length;
+    const off1pct=off1.length>0?Math.round(off1TD/off1.length*100):0;
+    const off2pct=off2.length>0?Math.round(off2TD/off2.length*100):0;
+    const def1pct=def1.length>0?Math.round(def1Stop/def1.length*100):0;
+    const def2pct=def2.length>0?Math.round(def2Stop/def2.length*100):0;
+
+    const driveHalves = hasHalves;
+    html+=`<table class="an-table"><thead><tr><th>Typ</th>${driveHalves?'<th>1. pol.</th><th>2. pol.</th>':''}<th>Celkem</th><th>%</th></tr></thead><tbody>
+      <tr><td>Útok</td>${driveHalves?`<td>${off1TD}/${off1.length} (${off1pct}%)</td><td>${off2TD}/${off2.length} (${off2pct}%)</td>`:''}<td>${offTD}/${offTotal}</td><td class="an-good">${offTDpct}%</td></tr>
+      <tr><td>Obrana</td>${driveHalves?`<td>${def1Stop}/${def1.length} (${def1pct}%)</td><td>${def2Stop}/${def2.length} (${def2pct}%)</td>`:''}<td>${defStop}/${defTotal}</td><td class="an-good">${defStopPct}%</td></tr>
+    </tbody></table>`;
+  }
+  // Fauly
+  const dFouls=teamData();
+  const fouls=dFouls&&dFouls.fouls?dFouls.fouls:{};
+  const allFouls=[...FOULS.qb,...FOULS.wr,...FOULS.def];
+  const foulEntries=allFouls.filter(f=>(fouls[f.key]||0)>0);
+  if(foulEntries.length){
+    html+=`<div class="an-section">Fauly</div>`;
+    html+=`<table class="an-table"><thead><tr><th>Faul</th><th>Počet</th><th>Yardy</th></tr></thead><tbody>`;
+    let totalYards=0;
+    foulEntries.forEach(f=>{
+      const cnt=fouls[f.key]||0;
+      const yards=cnt*f.yards;
+      totalYards+=yards;
+      html+=`<tr><td>${f.label}</td><td class="an-bad">${cnt}</td><td class="an-bad">${yards>0?'-'+yards+'y':f.note||'—'}</td></tr>`;
+    });
+    html+=`<tr style="border-top:1px solid #ddd;font-weight:700;"><td>Celkem</td><td></td><td class="an-bad">-${totalYards}y</td></tr>`;
+    html+=`</tbody></table>`;
+  }
   html+=`<div class="export-btn-row"><button class="export-btn" onclick="window.print()">Exportovat do PDF</button></div>`;
   html+=`<div style="margin-top:10px;"><button class="send-btn" id="send-btn" onclick="sendGame()">Odeslat zápas na web</button></div>`;
   html+=`<div class="reset-row"><button class="reset-btn" onclick="resetAll()">Nový zápas</button></div>`;
@@ -696,6 +1220,15 @@ function handleWrInt(){
     doIncrement('qb',qbName,'incomp');
     doIncrement('qb',qbName,'int');
   }
+  // End offensive drive - INT (failure only, no defensive drive)
+  const dInt=teamData();
+  if(dInt){
+    if(dInt.offDriveActive&&dInt.offDrives&&dInt.offDrives.length){
+      dInt.offDrives[dInt.offDrives.length-1].result='int';
+      dInt.offDriveActive=false;
+    }
+  }
+  pendingPass=null;
   save();
   renderTab('wr');
   setTimeout(()=>switchTab('def',document.getElementById('tab-btn-def')),120);
@@ -710,6 +1243,275 @@ function handleNoTarget(){
   save();
   renderTab('wr');
   setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+}
+
+function oppScore(type){
+  const d=teamData();if(!d)return;
+  if(!d.opp) d.opp={td:0,confirm1:0,confirm2:0};
+  history.push({type:'oppScore',scoreType:type});
+  if(type==='td'){
+    d.opp.td=(d.opp.td||0)+1;
+    // Obdržené TD = neúspěšný obranný drive
+    if(!d.defDrives)d.defDrives=[];
+    d.defDrives.push({result:'td',half:currentHalf()});
+    // Trigger confirm flow
+    pendingOppConfirm={pts:null};
+  }
+  else if(type==='confirm1') d.opp.confirm1=(d.opp.confirm1||0)+1;
+  else if(type==='confirm2') d.opp.confirm2=(d.opp.confirm2||0)+1;
+  save();
+  updateScore();
+  renderTab('def');
+}
+
+function calcScore(){
+  const d=teamData();
+  if(!d) return {us:0,them:0};
+  // Naše body = WR TD*6 + potvrzení + DEF INT TD*6 + DEF Safety*2
+  let us=0;
+  d.players.filter(p=>p.pos==='wr').forEach(p=>{
+    us+=(p.stats.td||0)*6;
+    us+=(p.stats.confirm1||0)*1;
+    us+=(p.stats.confirm2||0)*2;
+  });
+  d.players.filter(p=>p.pos==='def').forEach(p=>{
+    us+=(p.stats.inttd||0)*6;
+    us+=(p.stats.safety||0)*2;
+  });
+  // Body soupeře = obdržené TD*6 + potvrzení
+  const opp=d.opp||{td:0,confirm1:0,confirm2:0};
+  let them=(opp.td||0)*6+(opp.confirm1||0)*1+(opp.confirm2||0)*2+(opp.sack||0)*2;
+  return {us,them};
+}
+
+function updateScore(){
+  const s=calcScore();
+  const usEl=document.getElementById('score-us');
+  const themEl=document.getElementById('score-them');
+  if(usEl) usEl.textContent=s.us;
+  if(themEl) themEl.textContent=s.them;
+  // Update timeouts
+  const d=teamData();
+  const ourTO=d?(d.ourTO!=null?d.ourTO:2):2;
+  const oppTO=d?(d.oppTO!=null?d.oppTO:2):2;
+  const half=d?(d.half||1):1;
+  const halfEl=document.getElementById('half-label');
+  if(halfEl) halfEl.textContent=half+'. poločas';
+  const ourEl=document.getElementById('our-timeouts');
+  const oppEl=document.getElementById('opp-timeouts');
+  if(ourEl) ourEl.innerHTML=[0,1].map(i=>`<div class="to-dot${i>=ourTO?' avail':''}"></div>`).join('');
+  if(oppEl) oppEl.innerHTML=[0,1].map(i=>`<div class="to-dot${i>=oppTO?' avail':''}"></div>`).join('');
+}
+
+function startNoConfirm(){
+  if(!pendingConfirm)return;
+  pendingNoConfirm={wrName:pendingConfirm.wrName, pts:null};
+  pendingConfirm=null;
+  renderTab('qb');
+}
+
+function oppConfirmPts(pts){
+  if(pendingOppConfirm===null)return;
+  if(pts===0){
+    // Bez potvrzení - konec
+    pendingOppConfirm=null;
+    save();
+    renderTab('def');
+    return;
+  }
+  pendingOppConfirm.pts=pts;
+  renderTab('def');
+}
+
+function resolveOppConfirm(success){
+  if(!pendingOppConfirm)return;
+  const pts=pendingOppConfirm.pts;
+  const d=teamData();
+  if(d){
+    if(!d.opp)d.opp={td:0,confirm1:0,confirm2:0,sack:0};
+    if(success){
+      // Soupeř dal potvrzení
+      if(pts===1) d.opp.confirm1=(d.opp.confirm1||0)+1;
+      else d.opp.confirm2=(d.opp.confirm2||0)+1;
+      if(!d.opp.noconfirm1)d.opp.noconfirm1=0;
+      if(!d.opp.noconfirm2)d.opp.noconfirm2=0;
+    } else {
+      // Obrana ubránila potvrzení
+      if(pts===1) d.opp.noconfirm1=(d.opp.noconfirm1||0)+1;
+      else d.opp.noconfirm2=(d.opp.noconfirm2||0)+1;
+    }
+  }
+  pendingOppConfirm=null;
+  save();
+  updateScore();
+  renderTab('def');
+}
+
+function startNoConfirmFromDef(){
+  // Bez potvrzení po INT TD - stejná logika jako po útočném TD
+  pendingNoConfirm={wrName:null, pts:null};
+  pendingDefTD=null;
+  pendingDefConfirm=null;
+  renderTab('qb');
+}
+
+function selectNoConfirmPts(pts){
+  if(!pendingNoConfirm)return;
+  pendingNoConfirm.pts=pts;
+  renderTab('qb');
+}
+
+function selectNoConfirmQB(qbName){
+  if(!pendingNoConfirm)return;
+  pendingNoConfirm.qbName=qbName;
+  renderTab('qb');
+}
+
+function resolveNoConfirm(wrName){
+  if(!pendingNoConfirm)return;
+  const qbName=pendingNoConfirm.qbName;
+  const pts=pendingNoConfirm.pts||1;
+  const noConfirmKey=pts===1?'noconfirm1':'noconfirm2';
+  history.push({type:'noConfirm',qbName,wrName,pts});
+  if(qbName) doIncrement('qb',qbName,'pass');
+  if(qbName) doIncrement('qb',qbName,'incomp');
+  if(wrName){
+    doIncrement('wr',wrName,'drop');
+    doIncrement('wr',wrName,noConfirmKey);
+  }
+  pendingNoConfirm=null;
+  save();
+  renderTab('qb');
+}
+
+function showFoulPicker(pos){
+  pendingFoul={pos};
+  renderTab(pos);
+}
+
+function cancelFoul(){
+  pendingFoul=null;
+  renderTab(currentTab);
+}
+
+function recordFoul(key){
+  const d=teamData();if(!d)return;
+  if(!d.fouls)d.fouls={};
+  d.fouls[key]=(d.fouls[key]||0)+1;
+  history.push({type:'foul',key});
+  pendingFoul=null;
+  save();
+  renderTab(currentTab);
+}
+
+function endDrive(side, result){
+  const d=teamData();if(!d)return;
+  if(side==='off'){
+    if(!d.offDrives)d.offDrives=[];
+    if(d.offDriveActive&&d.offDrives.length){
+      d.offDrives[d.offDrives.length-1].result=result;
+      d.offDriveActive=false;
+    } else {
+      d.offDrives.push({result:result,half:currentHalf()});
+    }
+    history.push({type:'endDrive',side:'off',result});
+    save();
+    renderTab('qb');
+    setTimeout(()=>switchTab('def',document.getElementById('tab-btn-def')),120);
+  } else {
+    if(!d.defDrives)d.defDrives=[];
+    d.defDrives.push({result:result,half:currentHalf()});
+    history.push({type:'endDrive',side:'def',result});
+    save();
+    renderTab('def');
+    setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
+  }
+}
+
+function selectConfirmQB(qbName){
+  if(!pendingConfirmQB)return;
+  // Vždy ulož qbName - resolveConfirm rozhodne podle addPass jestli přičíst pass
+  pendingConfirm.qbName = qbName;
+  pendingConfirmQB=null;
+  renderTab('qb');
+}
+
+function selectDefConfirmQB(qbName){
+  if(!pendingDefConfirm)return;
+  pendingDefConfirm.qbName=qbName;
+  renderTab('qb');
+}
+
+function resolveDefConfirmPts(pts){
+  if(!pendingDefTD)return;
+  pendingDefConfirm={pts:pts, defName:pendingDefTD.defName, qbName:null};
+  pendingDefTD=null;
+  renderTab('qb');
+}
+
+function resolveDefConfirm(pts, wrName){
+  const defName = pendingDefConfirm ? pendingDefConfirm.defName : (pendingDefTD ? pendingDefTD.defName : null);
+  const qbName = pendingDefConfirm ? pendingDefConfirm.qbName : null;
+  history.push({type:'defConfirm', defName:defName, wrName:wrName, pts:pts, qbName:qbName});
+  if(pts>0&&wrName){
+    doIncrement('wr',wrName,'catch');
+    const confirmKey=pts===1?'confirm1':'confirm2';
+    doIncrement('wr',wrName,confirmKey);
+    doIncrement('wr',wrName,'points',pts);
+    if(qbName){
+      doIncrement('qb',qbName,'pass');
+      doIncrement('qb',qbName,'comp');
+    }
+  }
+  pendingDefTD=null;
+  pendingDefConfirm=null;
+  save();
+  renderTab('qb');
+}
+
+function cancelDefTD(){
+  if(pendingDefTD){
+    doDecrement('def',pendingDefTD.defName,'inttd');
+    history.pop();
+  }
+  pendingDefTD=null;
+  pendingDefConfirm=null;
+  save();
+  renderTab('qb');
+}
+
+function useTimeout(side){
+  const d=teamData();if(!d)return;
+  if(side==='our'){
+    if((d.ourTO||0)>=2)return;
+    d.ourTO=(d.ourTO||0)+1;
+  } else {
+    if((d.oppTO||0)>=2)return;
+    d.oppTO=(d.oppTO||0)+1;
+  }
+  save();
+  updateScore();
+}
+
+function nextHalf(){
+  const d=teamData();if(!d)return;
+  const currentHalf=d.half||1;
+  if(currentHalf>=2){
+    if(!confirm('Druhý poločas již proběhl. Začít nový zápas?'))return;
+    resetAll();
+    return;
+  }
+  if(!confirm('Ukončit '+currentHalf+'. poločas a spustit 2. poločas?'))return;
+  d.half=2;
+  d.ourTO=0;
+  d.oppTO=0;
+  d.halfTwoDriveStart=(()=>{ const p=data.players[0]; return p&&p.drives?p.drives.length:0; })();
+  d.drive=(d.drive||1)+1;
+  data.players.forEach(p=>{if(!p.drives)p.drives=[];p.drives.push(emptyStats(p.pos));});
+  save();
+  updateScore();
+  ['qb','wr','def'].forEach(renderTab);
+  renderSummary();
 }
 
 function switchTab(tab,btn){
@@ -763,7 +1565,6 @@ function selectTeam(name){
   currentTeam=name;
   save();
   document.getElementById('team-label').textContent=name;
-  document.getElementById('drive-badge').textContent='Drive '+(teamData().drive||1);
   hideTeamScreen();
   ['qb','wr','def'].forEach(renderTab);
   renderSummary();
@@ -788,7 +1589,7 @@ if(!currentTeam||!teams[currentTeam]){
   document.getElementById('team-label').textContent=currentTeam;
   ['qb','wr','def'].forEach(renderTab);
   renderSummary();
-  document.getElementById('drive-badge').textContent='Drive '+(teamData().drive||1);
+  updateScore();
 }
 </script>
 <script>
