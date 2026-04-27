@@ -47,9 +47,9 @@ tr:hover td{background:#fafafa;}
 // ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
 const API_URL = "https://script.google.com/macros/s/AKfycbzkdsKg2zNbxCfSV5rI_PBClD3N2HoY1Abtwnw_exNbsBJm7oyTh3NPyRjEw03ibr6Mzw/exec";
 
-// ⚠️ Výchozí tým pokud není zadán v URL (nech prázdné pro použití pouze URL parametru)
-// Příklad: const DEFAULT_TEAM = "Muži A";
-const DEFAULT_TEAM = "";
+// ⚠️ Výchozí tým pokud není zadán v URL
+// Změň název týmu podle potřeby
+const DEFAULT_TEAM = "Muži";
 
 const POS_LABELS = { qb:"QB", wr:"WR", def:"Obrana" };
 const SORT_KEY = { qb:'pass', wr:'catch', def:'flagpull' };
@@ -70,7 +70,7 @@ const COLS = {
     {key:'catch',   label:'Kompletní',cls:'td-val'},
     {key:'drop',    label:'Drop',     cls:'neg-val'},
     {key:'td',      label:'TD',       cls:'td-val'},
-    {key:'confirm', label:'Potvrzení',cls:'td-val'},
+    {key:'confirm', label:'Potvrzení',cls:'td-val', computed: p => (p.stats.confirm1||0)+(p.stats.confirm2||0)},
     {key:'points',  label:'Body',     cls:'td-val'},
     {key:'int',     label:'INT',      cls:'neg-val'},
   ],
@@ -96,7 +96,7 @@ function loadStats() {
     document.title = TEAM_NAME + ' — Flag Football Statistiky';
   }
 
-  document.getElementById('stats-root').innerHTML = '<div class="loading">Načítám statistiky...</div>';
+  document.getElementById('stats-root').innerHTML = '<div class="loading">Načítám statistiky pro tým: ' + TEAM_NAME + '...</div>';
 
   const callbackName = 'ffCallback_' + Date.now();
   const script = document.createElement('script');
@@ -185,7 +185,7 @@ function renderStats(players) {
     group.forEach(p => {
       let row = '<tr><td class="name">'+p.name+'</td>';
       cols.forEach(c => {
-        const val = c.key==='games' ? p.games : (p.stats[c.key] || 0);
+        const val = c.key==='games' ? p.games : (c.computed ? c.computed(p) : (p.stats[c.key] || 0));
         row += '<td class="num '+c.cls+'">'+val+'</td>';
       });
       row += '</tr>';
