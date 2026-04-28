@@ -105,7 +105,8 @@ function renderSelector() {
   let html = '<button class="game-btn all' + (selectedGame==='all'?' active':'') + '" onclick="selectGame(\'all\')">Celá sezóna</button>';
   allGames.forEach(g => {
     const active = selectedGame === g.game ? ' active' : '';
-    html += '<button class="game-btn'+active+'" onclick="selectGame('+g.game+')">Zápas '+g.game+' ('+g.date+')</button>';
+    const label = g.opponent ? 'vs '+g.opponent : 'Zápas '+g.game;
+    html += '<button class="game-btn'+active+'" onclick="selectGame('+g.game+')">'+label+'</button>';
   });
   el.innerHTML = html;
 }
@@ -166,8 +167,9 @@ function renderAll() {
   let html = '';
 
   // Skóre
+  const opponents = [...new Set(games.filter(g=>g.opponent).map(g=>g.opponent))].join(', ');
   html += '<div class="section">';
-  html += '<div class="section-title">Skóre</div>';
+  html += '<div class="section-title">Skóre'+(opponents?' — vs '+opponents:'')+'</div>';
   html += '<div class="score-row">';
   html += '<div><div class="score-val good">'+usTotal+'</div><div class="score-label">Naše body</div></div>';
   html += '<div class="score-sep">:</div>';
