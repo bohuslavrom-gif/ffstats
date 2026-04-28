@@ -244,6 +244,7 @@ let pendingDefTD=null; // INT TD obranáře — čekáme na potvrzení
 let pendingDefConfirm=null; // {pts, defName} — vybrané body, čekáme na WR
 let pendingConfirmQB=null; // {pts, wrName} — vybrané body, čekáme na QB výběr
 let pendingNoConfirm=null; // {wrName} — bez potvrzení, čekáme na QB výběr
+let pendingConfirmResult=null; // {pts, wrName} — čekáme na úspěšné/neúspěšné
 let pendingOppConfirm=null; // {pts} — obdržené TD, čekáme na výsledek potvrzení
 let pendingFoul=null; // {pos} — čekáme na výběr faulu
 // Drive tracking
@@ -389,6 +390,13 @@ function renderTab(pos){
       </div>
     </div>`;
   }
+  if(pos==='qb'&&pendingConfirmResult){
+    html+='<div class="confirm-bar"><div class="confirm-bar-title">Potvrzení (+'+pendingConfirmResult.pts+') — bylo úspěšné?</div><div class="confirm-btns">'
+    +'<button class="confirm-btn" style="background:#0a7c3e;" onclick="resolveConfirm(true)">✓ Úspěšné</button>'
+    +'<button class="confirm-btn" style="background:#c0392b;" onclick="resolveConfirm(false)">✗ Neúspěšné</button>'
+    +'</div></div>';
+  }
+
   if(pos==='qb'&&pendingConfirm&&!pendingConfirmQB){
     if(!pendingConfirm.pts){
       html+=`<div class="confirm-bar">
@@ -404,7 +412,7 @@ function renderTab(pos){
       html+=`<div class="confirm-bar">
         <div class="confirm-bar-title">Kdo skóroval potvrzení (+${pendingConfirm.pts})?</div>
         <div class="confirm-btns" style="flex-direction:column;gap:7px;">
-          ${wrPlayers.map(p=>'<button class="confirm-btn" style="font-size:15px;padding:12px 8px;" onclick="resolveConfirm('+pendingConfirm.pts+',&#39;'+p.name.replace(/'/g,'&#39;')+'&#39;)">'+p.name+'</button>').join('')}
+          ${wrPlayers.map(p=>'<button class="confirm-btn" style="font-size:15px;padding:12px 8px;" onclick="selectConfirmWR(&#39;'+p.name.replace(/'/g,"&#39;")+'&#39;)">'+p.name+'</button>').join('')}
         </div>
       </div>`;
     }
@@ -757,26 +765,36 @@ function resolveConfirmPts(pts){
   renderTab('qb');
 }
 
-function resolveConfirm(pts,wrName){
-  if(!pendingConfirm)return;
-  const qbName=pendingConfirm.qbName;
-  const addPassFlag = pendingConfirm&&pendingConfirm.addPass===true;
-  history.push({type:'confirm',wrName,pts,qbName,addPass:addPassFlag});
-  if(pts>0&&wrName){
-    doIncrement('wr',wrName,'catch');
-    const confirmKey = pts===1?'confirm1':'confirm2';
-    doIncrement('wr',wrName,confirmKey);
-    doIncrement('wr',wrName,'points',pts);
-    if(qbName){
-      // addPass: true = přímý TD (bez předchozího Pass kliknutí) → přidej pass+comp
-      // addPass: false = TD po Pass kliknutí → přidej jen comp
-      if(pendingConfirm&&pendingConfirm.addPass===true){
-        doIncrement('qb',qbName,'pass');
+function resolveConfirm(success){
+  const cr=pendingConfirmResult;
+  if(!cr)return;
+  const pts=cr.pts;
+  const wrName=cr.wrName;
+  const qbName=cr.qbName;
+  const addPassFlag=cr.addPass===true;
+  pendingConfirmResult=null;
+  if(success){
+    history.push({type:'confirm',wrName,pts,qbName,addPass:addPassFlag});
+    if(pts>0&&wrName){
+      doIncrement('wr',wrName,'catch');
+      const confirmKey = pts===1?'confirm1':'confirm2';
+      doIncrement('wr',wrName,confirmKey);
+      doIncrement('wr',wrName,'points',pts);
+      if(qbName){
+        if(addPassFlag) doIncrement('qb',qbName,'pass');
+        doIncrement('qb',qbName,'comp');
       }
-      doIncrement('qb',qbName,'comp');
+    }
+  } else {
+    const noConfirmKey = pts===1?'noconfirm1':'noconfirm2';
+    history.push({type:'noConfirm',qbName,wrName,pts});
+    if(qbName) doIncrement('qb',qbName,'pass');
+    if(qbName) doIncrement('qb',qbName,'incomp');
+    if(wrName){
+      doIncrement('wr',wrName,'drop');
+      doIncrement('wr',wrName,noConfirmKey);
     }
   }
-  pendingConfirm=null;
   save();
   renderTab('qb');
 }
@@ -916,7 +934,7 @@ function deletePlayer(pos,name){
 function nextDrive(){
   if(!confirm('Ukončit Drive '+data.drive+' a spustit nový?'))return;
   data.drive++;
-  pendingPass=null;pendingTD=null;pendingConfirm=null;pendingDefTD=null;pendingDefConfirm=null;pendingConfirmQB=null;pendingNoConfirm=null;pendingOppConfirm=null;
+  pendingPass=null;pendingTD=null;pendingConfirm=null;pendingDefTD=null;pendingDefConfirm=null;pendingConfirmQB=null;pendingNoConfirm=null;pendingOppConfirm=null;pendingConfirmResult=null;
   data.players.forEach(p=>{if(!p.drives)p.drives=[];p.drives.push(emptyStats(p.pos));});
   save();
   updateScore();
@@ -945,7 +963,7 @@ function resetAll(){
     d.opponentName='';
   }
   save();history=[];
-  pendingPass=null;pendingTD=null;pendingConfirm=null;pendingDefTD=null;pendingDefConfirm=null;pendingConfirmQB=null;pendingNoConfirm=null;pendingOppConfirm=null;
+  pendingPass=null;pendingTD=null;pendingConfirm=null;pendingDefTD=null;pendingDefConfirm=null;pendingConfirmQB=null;pendingNoConfirm=null;pendingOppConfirm=null;pendingConfirmResult=null;
   updateScore();
   ['qb','wr','def'].forEach(renderTab);
   renderSummary();
@@ -1460,6 +1478,13 @@ function endDrive(side, result){
     renderTab('def');
     setTimeout(()=>switchTab('qb',document.getElementById('tab-btn-qb')),120);
   }
+}
+
+function selectConfirmWR(wrName){
+  if(!pendingConfirm)return;
+  pendingConfirmResult={pts:pendingConfirm.pts, wrName, qbName:pendingConfirm.qbName, addPass:pendingConfirm.addPass};
+  pendingConfirm=null;
+  renderTab('qb');
 }
 
 function selectConfirmQB(qbName){
