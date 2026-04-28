@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trenérská analytika</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f2f2f7;color:#1a1a1a;padding:16px;}
+h1{font-size:22px;font-weight:700;margin-bottom:4px;}
+.subtitle{font-size:13px;color:#888;margin-bottom:20px;}
+.loading{text-align:center;color:#888;padding:40px;font-size:15px;}
+.error{text-align:center;color:#c0392b;padding:20px;font-size:14px;}
+.retry-btn{display:block;margin:12px auto;padding:10px 24px;border:1.5px solid #ddd;border-radius:10px;background:#fff;font-size:14px;cursor:pointer;}
+
+.game-selector{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+.game-btn{padding:7px 14px;border:1.5px solid #ddd;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;color:#555;}
+.game-btn.active{background:#1a56db;border-color:#1a56db;color:#fff;}
+.game-btn.all{background:#f0f4ff;border-color:#1a56db;color:#1a56db;}
+
+.section{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;}
+.section-title{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
+
+.score-row{display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 0;}
+.score-val{font-size:36px;font-weight:700;color:#1a1a1a;}
+.score-sep{font-size:20px;color:#ccc;}
+.score-label{font-size:12px;color:#888;text-align:center;margin-top:2px;}
+
+table{width:100%;border-collapse:collapse;font-size:13px;}
+th{background:#f5f5f5;padding:7px 8px;text-align:left;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;border-bottom:1px solid #eee;}
+td{padding:7px 8px;border-bottom:0.5px solid #f0f0f0;color:#1a1a1a;}
+.good{color:#0a7c3e;font-weight:700;}
+.bad{color:#c0392b;font-weight:700;}
+.warn{color:#b8860b;font-weight:700;}
+.num{text-align:right;}
+
+.drive-bar{display:flex;gap:8px;margin-bottom:6px;align-items:center;}
+.drive-label{font-size:12px;color:#555;width:60px;}
+.drive-track{flex:1;background:#f0f0f0;border-radius:6px;height:20px;overflow:hidden;}
+.drive-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
+.drive-pct{font-size:12px;font-weight:700;width:40px;text-align:right;}
+
+.updated{font-size:11px;color:#bbb;text-align:right;margin-top:8px;}
+</style>
+</head>
+<body>
+
+<h1 id="widget-title">Trenérská analytika</h1>
+<p class="subtitle">Statistiky pro trenéry</p>
+
+<div id="game-selector" class="game-selector"></div>
+<div id="stats-root"><div class="loading">Načítám data...</div></div>
+<p class="updated" id="updated"></p>
+
+<script>
+const API_URL = "https://script.google.com/macros/s/AKfycbynG6WSL1_PNjpHfxNaMF1oqqD55cXgo4_nie6CcK1osJ_S9KAmXpur8m5Wi0pEphqitw/exec";
+const DEFAULT_TEAM = "Muži";
+
+const urlParams = new URLSearchParams(window.location.search);
+const TEAM_NAME = urlParams.get('team') || DEFAULT_TEAM;
+
+let allGames = [];
+let selectedGame = 'all';
+
+document.getElementById('widget-title').textContent = TEAM_NAME + ' — Trenérská analytika';
+
+function loadData() {
+  document.getElementById('stats-root').innerHTML = '<div class="loading">Načítám data...</div>';
+  const callbackName = 'cb_' + Date.now();
+  const script = document.createElement('script');
+  const timeout = setTimeout(() => {
+    cleanup();
+    showError('Časový limit vypršel.');
+  }, 10000);
+
+  function cleanup() {
+    clearTimeout(timeout);
+    delete window[callbackName];
+    if (script.parentNode) script.parentNode.removeChild(script);
+  }
+
+  window[callbackName] = function(data) {
+    cleanup();
+    if (data && data.games) {
+      allGames = data.games.sort((a,b) => a.game - b.game);
+      renderSelector();
+      renderAll();
+      document.getElementById('updated').textContent = 'Aktualizováno: ' + new Date().toLocaleString('cs-CZ');
+    } else {
+      showError('Žádná data.');
+    }
+  };
+
+  script.src = API_URL + '?callback=' + callbackName + '&mode=coach&team=' + encodeURIComponent(TEAM_NAME);
+  document.head.appendChild(script);
+}
+
+function showError(msg) {
+  document.getElementById('stats-root').innerHTML =
+    '<div class="error">' + msg + '</div><button class="retry-btn" onclick="loadData()">Zkusit znovu</button>';
+}
+
+function renderSelector() {
+  const el = document.getElementById('game-selector');
+  let html = '<button class="game-btn all' + (selectedGame==='all'?' active':'') + '" onclick="selectGame(\'all\')">Celá sezóna</button>';
+  allGames.forEach(g => {
+    const active = selectedGame === g.game ? ' active' : '';
+    html += '<button class="game-btn'+active+'" onclick="selectGame('+g.game+')">Zápas '+g.game+' ('+g.date+')</button>';
+  });
+  el.innerHTML = html;
+}
+
+function selectGame(game) {
+  selectedGame = game;
+  renderSelector();
+  renderAll();
+}
+
+function getGames() {
+  if (selectedGame === 'all') return allGames;
+  return allGames.filter(g => g.game === selectedGame);
+}
+
+function renderAll() {
+  const games = getGames();
+  if (!games.length) {
+    document.getElementById('stats-root').innerHTML = '<div class="loading">Žádné záznamy.</div>';
+    return;
+  }
+
+  // Agreguj data
+  let usTotal=0, themTotal=0;
+  let offDrives=[], defDrives=[];
+  let foulMap={}, confirm={c1:0,c2:0,nc1:0,nc2:0};
+
+  games.forEach(g => {
+    usTotal += g.score.us;
+    themTotal += g.score.them;
+    offDrives = offDrives.concat(g.offDrives||[]);
+    defDrives = defDrives.concat(g.defDrives||[]);
+    (g.fouls||[]).forEach(f => {
+      if (!foulMap[f.label]) foulMap[f.label] = {count:0,yards:0};
+      foulMap[f.label].count += f.count;
+      foulMap[f.label].yards += f.yards;
+    });
+    confirm.c1  += g.confirm.c1||0;
+    confirm.c2  += g.confirm.c2||0;
+    confirm.nc1 += g.confirm.nc1||0;
+    confirm.nc2 += g.confirm.nc2||0;
+  });
+
+  // Drivy
+  const offTotal = offDrives.filter(d=>d.result).length;
+  const offTD = offDrives.filter(d=>d.result==='td').length;
+  const offPct = offTotal>0 ? Math.round(offTD/offTotal*100) : 0;
+  const defTotal = defDrives.length;
+  const defStop = defDrives.filter(d=>d.result==='stop'||d.result==='manual').length;
+  const defPct = defTotal>0 ? Math.round(defStop/defTotal*100) : 0;
+
+  // Potvrzení soupeře
+  const att1 = confirm.c1 + confirm.nc1;
+  const att2 = confirm.c2 + confirm.nc2;
+  const def1pct = att1>0 ? Math.round(confirm.nc1/att1*100) : 0;
+  const def2pct = att2>0 ? Math.round(confirm.nc2/att2*100) : 0;
+
+  let html = '';
+
+  // Skóre
+  html += '<div class="section">';
+  html += '<div class="section-title">Skóre</div>';
+  html += '<div class="score-row">';
+  html += '<div><div class="score-val good">'+usTotal+'</div><div class="score-label">Naše body</div></div>';
+  html += '<div class="score-sep">:</div>';
+  html += '<div><div class="score-val bad">'+themTotal+'</div><div class="score-label">Body soupeře</div></div>';
+  html += '</div></div>';
+
+  // Drivy
+  if (offTotal || defTotal) {
+    html += '<div class="section">';
+    html += '<div class="section-title">Drivy</div>';
+    html += '<div class="drive-bar"><div class="drive-label">Útok</div><div class="drive-track"><div class="drive-fill" style="width:'+offPct+'%;background:#1a56db;">'+offPct+'%</div></div><div class="drive-pct good">'+offTD+'/'+offTotal+'</div></div>';
+    html += '<div class="drive-bar"><div class="drive-label">Obrana</div><div class="drive-track"><div class="drive-fill" style="width:'+defPct+'%;background:#0a7c3e;">'+defPct+'%</div></div><div class="drive-pct good">'+defStop+'/'+defTotal+'</div></div>';
+    html += '</div>';
+  }
+
+  // Potvrzení soupeře
+  if (att1+att2 > 0) {
+    html += '<div class="section">';
+    html += '<div class="section-title">Obrana — ubráněná potvrzení soupeře</div>';
+    html += '<table><thead><tr><th>Typ</th><th class="num">Ubráněno/Pokusy</th><th class="num">%</th></tr></thead><tbody>';
+    html += '<tr><td>Za 1 bod</td><td class="num">'+confirm.nc1+'/'+att1+'</td><td class="num '+(def1pct>=50?'good':'warn')+'">'+def1pct+'%</td></tr>';
+    html += '<tr><td>Za 2 body</td><td class="num">'+confirm.nc2+'/'+att2+'</td><td class="num '+(def2pct>=50?'good':'warn')+'">'+def2pct+'%</td></tr>';
+    html += '</tbody></table></div>';
+  }
+
+  // Fauly
+  const foulEntries = Object.entries(foulMap).filter(([,v])=>v.count>0);
+  if (foulEntries.length) {
+    const totalYards = foulEntries.reduce((s,[,v])=>s+v.yards,0);
+    html += '<div class="section">';
+    html += '<div class="section-title">Fauly</div>';
+    html += '<table><thead><tr><th>Faul</th><th class="num">Počet</th><th class="num">Yardy</th></tr></thead><tbody>';
+    foulEntries.forEach(([label, v]) => {
+      html += '<tr><td>'+label+'</td><td class="num bad">'+v.count+'</td><td class="num bad">-'+v.yards+'y</td></tr>';
+    });
+    html += '<tr style="border-top:1px solid #ddd;font-weight:700;"><td>Celkem</td><td></td><td class="num bad">-'+totalYards+'y</td></tr>';
+    html += '</tbody></table></div>';
+  }
+
+  document.getElementById('stats-root').innerHTML = html;
+}
+
+loadData();
+</script>
+</body>
+</html>
