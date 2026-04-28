@@ -942,6 +942,7 @@ function resetAll(){
     d.offDriveActive=false;
     d.halfTwoDriveStart=null;
     d.fouls={};
+    d.opponentName='';
   }
   save();history=[];
   pendingPass=null;pendingTD=null;pendingConfirm=null;pendingDefTD=null;pendingDefConfirm=null;pendingConfirmQB=null;pendingNoConfirm=null;pendingOppConfirm=null;
@@ -1172,7 +1173,15 @@ function renderSummary(){
     html+=`</tbody></table>`;
   }
   html+=`<div class="export-btn-row"><button class="export-btn" onclick="window.print()">Exportovat do PDF</button></div>`;
-  html+=`<div style="margin-top:10px;"><button class="send-btn" id="send-btn" onclick="sendGame()">Odeslat zápas na web</button></div>`;
+  const savedOpponent = teamData()&&teamData().opponentName||'';
+  html+=`<div style="margin-top:10px;">
+    <div style="margin-bottom:6px;">
+      <input type="text" id="opponent-name" value="${savedOpponent}" placeholder="Název soupeře (např. EOS Bobcats)" 
+        style="width:100%;height:44px;border:1.5px solid #e0e0e0;border-radius:12px;padding:0 14px;font-size:15px;background:#fff;"
+        oninput="saveOpponentName(this.value)" />
+    </div>
+    <button class="send-btn" id="send-btn" onclick="sendGame()">Odeslat zápas na web</button>
+  </div>`;
   html+=`<div class="reset-row"><button class="reset-btn" onclick="resetAll()">Nový zápas</button></div>`;
   el.innerHTML=html;
 }
@@ -1491,6 +1500,12 @@ function useTimeout(side){
   }
   save();
   updateScore();
+}
+
+function saveOpponentName(name){
+  const d=teamData();if(!d)return;
+  d.opponentName=name;
+  save();
 }
 
 function nextHalf(){
