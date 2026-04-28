@@ -105,7 +105,8 @@ function renderSelector() {
   let html = '<button class="game-btn all' + (selectedGame==='all'?' active':'') + '" onclick="selectGame(\'all\')">Celá sezóna</button>';
   allGames.forEach(g => {
     const active = selectedGame === g.game ? ' active' : '';
-    const label = g.opponent ? 'vs '+g.opponent : 'Zápas '+g.game;
+    const dateStr = g.date ? new Date(g.date).toLocaleDateString('cs-CZ') : '';
+    const label = g.opponent ? 'vs '+g.opponent+' ('+dateStr+')' : 'Zápas '+g.game+' ('+dateStr+')';
     html += '<button class="game-btn'+active+'" onclick="selectGame('+g.game+')">'+label+'</button>';
   });
   el.innerHTML = html;
