@@ -1198,11 +1198,19 @@ function sendGame(){
 
   // Google Apps Script nepodporuje CORS pro POST s JSON hlavičkami
   // Řešení: posíláme data jako URL parametr přes GET (no-cors safe)
+  const d=teamData();
+  const s=calcScore();
   const payload=encodeURIComponent(JSON.stringify({
     players:data.players,
     gameNumber:data.gameNumber||1,
     drive:data.drive,
-    team:currentTeam||'Neznamý tým'
+    team:currentTeam||'Neznámý tým',
+    opponent: opponentName,
+    ourScore: s.us,
+    opp: d?d.opp:{},
+    offDrives: d?d.offDrives:[],
+    defDrives: d?d.defDrives:[],
+    fouls: d?d.fouls:{}
   }));
   const url=API_URL+'?data='+payload;
 
