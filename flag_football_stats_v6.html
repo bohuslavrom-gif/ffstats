@@ -210,7 +210,7 @@ const POS={
 };
 
 // ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
-const API_URL = "https://script.google.com/macros/s/AKfycbynG6WSL1_PNjpHfxNaMF1oqqD55cXgo4_nie6CcK1osJ_S9KAmXpur8m5Wi0pEphqitw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbyt5W-8PwM7j1ecfDUtus0aLd6VwbtJzeAhxd0WYmF4iE4Ir5PxjA3a6pLm-TBFT_KdPg/exec";
 
 // Data jsou uložena per tým
 let currentTeam = null;
@@ -1214,19 +1214,35 @@ function sendGame(){
   }));
   const url=API_URL+'?data='+payload;
 
-  fetch(url,{method:'GET',mode:'no-cors'})
-  .then(()=>{
+  // JSONP přístup - spolehlivější pro Apps Script
+  const cbName = 'sendCb_' + Date.now();
+  const sc = document.createElement('script');
+  const tm = setTimeout(()=>{
+    delete window[cbName];
+    if(sc.parentNode) sc.parentNode.removeChild(sc);
+    btn.disabled=false;
+    btn.textContent="Odeslat zápas na web";
+    alert("Chyba: Timeout při odesílání.");
+  }, 15000);
+  window[cbName] = function(resp){
+    clearTimeout(tm);
+    delete window[cbName];
+    if(sc.parentNode) sc.parentNode.removeChild(sc);
     data.gameNumber=(data.gameNumber||1)+1;
     save();
     btn.textContent="Odesláno!";
     btn.style.background="#1a56db";
     setTimeout(()=>{btn.disabled=false;btn.textContent="Odeslat zápas na web";btn.style.background="";},3000);
-  })
-  .catch(err=>{
-    alert("Chyba při odesílání: "+err.message);
+  };
+  sc.onerror = function(){
+    clearTimeout(tm);
+    delete window[cbName];
     btn.disabled=false;
     btn.textContent="Odeslat zápas na web";
-  });
+    alert("Chyba při odesílání.");
+  };
+  sc.src = url + '&callback=' + cbName;
+  document.head.appendChild(sc);
 }
 
 function handleWrInt(){
