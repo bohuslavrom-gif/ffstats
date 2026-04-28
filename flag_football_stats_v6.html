@@ -1200,6 +1200,7 @@ function sendGame(){
   // Řešení: posíláme data jako URL parametr přes GET (no-cors safe)
   const d=teamData();
   const s=calcScore();
+  const opponentName=d?d.opponentName||'':'';
   const payload=encodeURIComponent(JSON.stringify({
     players:data.players,
     gameNumber:data.gameNumber||1,
