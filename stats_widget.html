@@ -45,7 +45,7 @@ tr:hover td{background:#fafafa;}
 
 <script>
 // ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
-const API_URL = "https://script.google.com/macros/s/AKfycbzkdsKg2zNbxCfSV5rI_PBClD3N2HoY1Abtwnw_exNbsBJm7oyTh3NPyRjEw03ibr6Mzw/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzGn-Et5ViB9GYVw5SXP_CGPqjKU0Cyk3gLzhGzIU5uve2xARPNLBVIXQNonIcsAl3Yrw/exec";
 
 // ⚠️ Výchozí tým pokud není zadán v URL
 // Změň název týmu podle potřeby
@@ -72,7 +72,7 @@ const COLS = {
     {key:'td',      label:'TD',       cls:'td-val'},
     {key:'confirm', label:'Potvrzení',cls:'td-val', computed: p => (p.stats.confirm1||0)+(p.stats.confirm2||0)},
     {key:'points',  label:'Body',     cls:'td-val'},
-    {key:'int',     label:'INT',      cls:'neg-val'},
+    {key:'int',     label:'INT',      cls:'neg-val', hidden:true},
   ],
   def: [
     {key:'games',   label:'Game',     cls:'info-val'},
@@ -155,6 +155,16 @@ function sortBy(pos, key) {
   renderStats(window._lastPlayers || []);
 }
 
+function sortBy(pos, key) {
+  if (sortState[pos].key === key) {
+    sortState[pos].asc = !sortState[pos].asc;
+  } else {
+    sortState[pos].key = key;
+    sortState[pos].asc = false;
+  }
+  renderStats(window._lastPlayers || []);
+}
+
 function renderStats(players) {
   window._lastPlayers = players;
   const root = document.getElementById('stats-root');
@@ -165,6 +175,8 @@ function renderStats(players) {
   let html = '';
   ['qb','wr','def'].forEach(pos => {
     const ss = sortState[pos];
+    const allCols = COLS[pos];
+    const cols = allCols.filter(c => !c.hidden);
     const group = players
       .filter(p => p.pos === pos)
       .sort((a,b) => {
@@ -173,7 +185,6 @@ function renderStats(players) {
         return ss.asc ? aVal-bVal : bVal-aVal;
       });
     if (!group.length) return;
-    const cols = COLS[pos];
     html += '<div class="section-bar"><span>'+POS_LABELS[pos]+'</span><div></div></div>';
     let thead = '<table><thead><tr><th style="cursor:pointer" onclick="sortBy(&#39;'+pos+'&#39;,&#39;name&#39;)">Hráč</th>';
     cols.forEach(c => {
