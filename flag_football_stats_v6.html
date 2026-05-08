@@ -210,7 +210,7 @@ const POS={
 };
 
 // ⚠️ SEM VLOŽ URL svého Google Apps Script nasazení:
-const API_URL = "https://script.google.com/macros/s/AKfycbxqFFq7dq6LVKKkAobLklKAgulFEPzuR5jlTk4YOT8RnXEE07HYlkCsH5gr98sfguYa7g/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzJMA83cyA-S6d-lGib5vKW1Ryu1MP_2n2Bumn106mVi7_IwjLbdOJNRmFoqGNC00XEBw/exec";
 
 // Data jsou uložena per tým
 let currentTeam = null;
@@ -1279,7 +1279,7 @@ function sendGame(){
     team: currentTeam||'Neznámý tým',
     gameNumber: data.gameNumber||1,
     opponent: opponentName,
-    players: [],
+    players: data.players, // potřebujeme WR pro potvrzení
     coachOnly: true,
     ourScore: s.us,
     opp: oppData,
