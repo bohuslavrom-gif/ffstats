@@ -53,7 +53,7 @@ td{padding:7px 8px;border-bottom:0.5px solid #f0f0f0;color:#1a1a1a;}
 <p class="updated" id="updated"></p>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbwI8vSlZ9klMoAAiJeyGObFW387anLuZNx3E9K3x1ILZ5cwVcdhoynME_Sy9y_0cuPHAg/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbxqFFq7dq6LVKKkAobLklKAgulFEPzuR5jlTk4YOT8RnXEE07HYlkCsH5gr98sfguYa7g/exec";
 const DEFAULT_TEAM = "Muži";
 
 const urlParams = new URLSearchParams(window.location.search);
@@ -64,35 +64,47 @@ let selectedGame = 'all';
 
 document.getElementById('widget-title').textContent = TEAM_NAME + ' — Trenérská analytika';
 
+let playerStats = [];
+
 function loadData() {
   document.getElementById('stats-root').innerHTML = '<div class="loading">Načítám data...</div>';
-  const callbackName = 'cb_' + Date.now();
-  const script = document.createElement('script');
-  const timeout = setTimeout(() => {
-    cleanup();
-    showError('Časový limit vypršel.');
-  }, 10000);
-
-  function cleanup() {
-    clearTimeout(timeout);
-    delete window[callbackName];
-    if (script.parentNode) script.parentNode.removeChild(script);
-  }
-
-  window[callbackName] = function(data) {
-    cleanup();
+  
+  // Load coach data
+  const cb1 = 'cb_coach_' + Date.now();
+  const sc1 = document.createElement('script');
+  const tm1 = setTimeout(() => { cleanup1(); showError('Časový limit vypršel.'); }, 10000);
+  function cleanup1() { clearTimeout(tm1); delete window[cb1]; if(sc1.parentNode) sc1.parentNode.removeChild(sc1); }
+  
+  window[cb1] = function(data) {
+    cleanup1();
     if (data && data.games) {
       allGames = data.games.sort((a,b) => a.game - b.game);
-      renderSelector();
-      renderAll();
-      document.getElementById('updated').textContent = 'Aktualizováno: ' + new Date().toLocaleString('cs-CZ');
+      // Now load player stats
+      loadPlayerStats();
     } else {
       showError('Žádná data.');
     }
   };
+  sc1.src = API_URL + '?callback=' + cb1 + '&mode=coach&team=' + encodeURIComponent(TEAM_NAME);
+  document.head.appendChild(sc1);
+}
 
-  script.src = API_URL + '?callback=' + callbackName + '&mode=coach&team=' + encodeURIComponent(TEAM_NAME);
-  document.head.appendChild(script);
+function loadPlayerStats() {
+  const cb2 = 'cb_players_' + Date.now();
+  const sc2 = document.createElement('script');
+  const tm2 = setTimeout(() => { delete window[cb2]; if(sc2.parentNode) sc2.parentNode.removeChild(sc2); renderSelector(); renderAll(); }, 10000);
+  
+  window[cb2] = function(data) {
+    clearTimeout(tm2);
+    delete window[cb2];
+    if(sc2.parentNode) sc2.parentNode.removeChild(sc2);
+    if (data && data.players) playerStats = data.players;
+    renderSelector();
+    renderAll();
+    document.getElementById('updated').textContent = 'Aktualizováno: ' + new Date().toLocaleString('cs-CZ');
+  };
+  sc2.src = API_URL + '?callback=' + cb2 + '&team=' + encodeURIComponent(TEAM_NAME);
+  document.head.appendChild(sc2);
 }
 
 function showError(msg) {
@@ -159,6 +171,17 @@ function renderAll() {
   const defStop = defDrives.filter(d=>d.result==='stop'||d.result==='manual').length;
   const defPct = defTotal>0 ? Math.round(defStop/defTotal*100) : 0;
 
+  // Naše potvrzení z hráčských statistik
+  const wrPlayers = playerStats.filter(p => p.pos === 'wr');
+  const totalC1 = wrPlayers.reduce((s,p) => s+(p.stats.confirm1||0), 0);
+  const totalC2 = wrPlayers.reduce((s,p) => s+(p.stats.confirm2||0), 0);
+  const totalNC1 = wrPlayers.reduce((s,p) => s+(p.stats.noconfirm1||0), 0);
+  const totalNC2 = wrPlayers.reduce((s,p) => s+(p.stats.noconfirm2||0), 0);
+  const attOff1 = totalC1 + totalNC1;
+  const attOff2 = totalC2 + totalNC2;
+  const offC1pct = attOff1>0 ? Math.round(totalC1/attOff1*100) : 0;
+  const offC2pct = attOff2>0 ? Math.round(totalC2/attOff2*100) : 0;
+
   // Potvrzení soupeře
   const att1 = confirm.c1 + confirm.nc1;
   const att2 = confirm.c2 + confirm.nc2;
@@ -184,6 +207,16 @@ function renderAll() {
     html += '<div class="drive-bar"><div class="drive-label">Útok</div><div class="drive-track"><div class="drive-fill" style="width:'+offPct+'%;background:#1a56db;">'+offPct+'%</div></div><div class="drive-pct good">'+offTD+'/'+offTotal+'</div></div>';
     html += '<div class="drive-bar"><div class="drive-label">Obrana</div><div class="drive-track"><div class="drive-fill" style="width:'+defPct+'%;background:#0a7c3e;">'+defPct+'%</div></div><div class="drive-pct good">'+defStop+'/'+defTotal+'</div></div>';
     html += '</div>';
+  }
+
+  // Naše potvrzení
+  if (attOff1+attOff2 > 0) {
+    html += '<div class="section">';
+    html += '<div class="section-title">Útok — úspěšnost potvrzení</div>';
+    html += '<table><thead><tr><th>Typ</th><th class="num">Úspěšné/Pokusy</th><th class="num">%</th></tr></thead><tbody>';
+    if(attOff1>0) html += '<tr><td>Za 1 bod</td><td class="num">'+totalC1+'/'+attOff1+'</td><td class="num '+(offC1pct>=50?'good':'warn')+'">'+offC1pct+'%</td></tr>';
+    if(attOff2>0) html += '<tr><td>Za 2 body</td><td class="num">'+totalC2+'/'+attOff2+'</td><td class="num '+(offC2pct>=50?'good':'warn')+'">'+offC2pct+'%</td></tr>';
+    html += '</tbody></table></div>';
   }
 
   // Potvrzení soupeře
