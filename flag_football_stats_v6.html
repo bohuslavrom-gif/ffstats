@@ -1252,20 +1252,29 @@ function sendGame(){
     document.head.appendChild(sc);
   }
 
-  // 1. Hráčská data - zkomprimuj, posílej jen neprázdné statistiky
-  const compressedPlayers = data.players.map(p => ({
-    name: p.name,
-    pos: p.pos,
-    stats: Object.fromEntries(Object.entries(p.stats||{}).filter(([k,v])=>v&&v!==0))
-  }));
-  const playerPayload = {
-    team: currentTeam||'Neznámý tým',
-    gameNumber: data.gameNumber||1,
-    opponent: opponentName,
-    players: compressedPlayers
-  };
+  // Posílej hráče po jednom + trenérská data
+  const players = data.players.slice();
+  let playerIndex = 0;
 
-  // 2. Trenérská data (bez hráčů - menší payload)
+  function sendNextPlayer(onDone) {
+    if (playerIndex >= players.length) {
+      if(onDone) onDone();
+      return;
+    }
+    const p = players[playerIndex++];
+    const payload = {
+      team: currentTeam||'Neznámý tým',
+      gameNumber: data.gameNumber||1,
+      opponent: opponentName,
+      players: [{name:p.name, pos:p.pos, stats:p.stats||{}}]
+    };
+    sendJSONP(payload,
+      function(){ sendNextPlayer(onDone); },
+      function(err){ sendNextPlayer(onDone); } // pokračuj i při chybě
+    );
+  }
+
+  // Trenérská data odešli hned a nezávisle
   const coachPayload = {
     team: currentTeam||'Neznámý tým',
     gameNumber: data.gameNumber||1,
@@ -1277,24 +1286,19 @@ function sendGame(){
     defDrives: defDrivesData,
     fouls: foulsData
   };
-
-  sendJSONP(playerPayload, function(){
-    // Hráčská data odeslána, teď trenérská
-    sendJSONP(coachPayload, function(){
-      data.gameNumber=(data.gameNumber||1)+1;
-      save();
-      btn.textContent="Odesláno!";
-      btn.style.background="#1a56db";
-      setTimeout(()=>{btn.disabled=false;btn.textContent="Odeslat zápas na web";btn.style.background="";},3000);
-    }, function(err){
-      btn.disabled=false;
-      btn.textContent="Odeslat zápas na web";
-      alert("Chyba při odesílání trenérských dat: "+err);
-    });
+  sendJSONP(coachPayload, function(){
+    console.log('Trenérská data OK');
   }, function(err){
-    btn.disabled=false;
-    btn.textContent="Odeslat zápas na web";
-    alert("Chyba při odesílání: "+err);
+    console.log('Trenérská data chyba:', err);
+  });
+
+  // Hráčská data po jednom, na konci zobraz "Odesláno"
+  sendNextPlayer(function(){
+    data.gameNumber=(data.gameNumber||1)+1;
+    save();
+    btn.textContent="Odesláno!";
+    btn.style.background="#1a56db";
+    setTimeout(()=>{btn.disabled=false;btn.textContent="Odeslat zápas na web";btn.style.background="";},3000);
   });
 }
 
