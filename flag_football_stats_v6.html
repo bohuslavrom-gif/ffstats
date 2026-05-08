@@ -1245,12 +1245,17 @@ function sendGame(){
     document.head.appendChild(sc);
   }
 
-  // 1. Hráčská data
+  // 1. Hráčská data - zkomprimuj, posílej jen neprázdné statistiky
+  const compressedPlayers = data.players.map(p => ({
+    name: p.name,
+    pos: p.pos,
+    stats: Object.fromEntries(Object.entries(p.stats||{}).filter(([k,v])=>v&&v!==0))
+  }));
   const playerPayload = {
     team: currentTeam||'Neznámý tým',
     gameNumber: data.gameNumber||1,
     opponent: opponentName,
-    players: data.players
+    players: compressedPlayers
   };
 
   // 2. Trenérská data (bez hráčů - menší payload)
