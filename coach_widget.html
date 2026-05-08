@@ -22,99 +22,73 @@ h1{font-size:22px;font-weight:700;margin-bottom:4px;}
 .section-title{font-size:11px;font-weight:700;color:#888;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:10px;}
 
 .score-row{display:flex;align-items:center;justify-content:center;gap:16px;padding:8px 0;}
-.score-val{font-size:36px;font-weight:700;color:#1a1a1a;}
+.score-val{font-size:36px;font-weight:700;}
 .score-sep{font-size:20px;color:#ccc;}
 .score-label{font-size:12px;color:#888;text-align:center;margin-top:2px;}
+.good{color:#0a7c3e;}
+.bad{color:#c0392b;}
+.warn{color:#b8860b;}
 
 table{width:100%;border-collapse:collapse;font-size:13px;}
 th{background:#f5f5f5;padding:7px 8px;text-align:left;font-size:10px;font-weight:700;color:#888;text-transform:uppercase;border-bottom:1px solid #eee;}
 td{padding:7px 8px;border-bottom:0.5px solid #f0f0f0;color:#1a1a1a;}
-.good{color:#0a7c3e;font-weight:700;}
-.bad{color:#c0392b;font-weight:700;}
-.warn{color:#b8860b;font-weight:700;}
 .num{text-align:right;}
+.fw{font-weight:700;}
 
-.drive-bar{display:flex;gap:8px;margin-bottom:6px;align-items:center;}
-.drive-label{font-size:12px;color:#555;width:60px;}
-.drive-track{flex:1;background:#f0f0f0;border-radius:6px;height:20px;overflow:hidden;}
-.drive-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;}
-.drive-pct{font-size:12px;font-weight:700;width:40px;text-align:right;}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.bar-label{font-size:12px;color:#555;width:65px;flex-shrink:0;}
+.bar-track{flex:1;background:#f0f0f0;border-radius:6px;height:22px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:6px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;font-size:11px;font-weight:700;color:#fff;min-width:30px;}
+.bar-pct{font-size:13px;font-weight:700;width:45px;text-align:right;}
 
 .updated{font-size:11px;color:#bbb;text-align:right;margin-top:8px;}
 </style>
 </head>
 <body>
-
 <h1 id="widget-title">Trenérská analytika</h1>
 <p class="subtitle">Statistiky pro trenéry</p>
-
 <div id="game-selector" class="game-selector"></div>
 <div id="stats-root"><div class="loading">Načítám data...</div></div>
 <p class="updated" id="updated"></p>
 
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxqFFq7dq6LVKKkAobLklKAgulFEPzuR5jlTk4YOT8RnXEE07HYlkCsH5gr98sfguYa7g/exec";
+const API_URL = "https://script.google.com/macros/s/AKfycbzJMA83cyA-S6d-lGib5vKW1Ryu1MP_2n2Bumn106mVi7_IwjLbdOJNRmFoqGNC00XEBw/exec";
 const DEFAULT_TEAM = "Muži";
-
 const urlParams = new URLSearchParams(window.location.search);
 const TEAM_NAME = urlParams.get('team') || DEFAULT_TEAM;
-
 let allGames = [];
 let selectedGame = 'all';
 
 document.getElementById('widget-title').textContent = TEAM_NAME + ' — Trenérská analytika';
 
-let playerStats = [];
-
 function loadData() {
   document.getElementById('stats-root').innerHTML = '<div class="loading">Načítám data...</div>';
-  
-  // Load coach data
-  const cb1 = 'cb_coach_' + Date.now();
-  const sc1 = document.createElement('script');
-  const tm1 = setTimeout(() => { cleanup1(); showError('Časový limit vypršel.'); }, 10000);
-  function cleanup1() { clearTimeout(tm1); delete window[cb1]; if(sc1.parentNode) sc1.parentNode.removeChild(sc1); }
-  
-  window[cb1] = function(data) {
-    cleanup1();
+  const cb = 'cb_' + Date.now();
+  const sc = document.createElement('script');
+  const tm = setTimeout(() => { cleanup(); showError('Časový limit vypršel.'); }, 10000);
+  function cleanup() { clearTimeout(tm); delete window[cb]; if(sc.parentNode) sc.parentNode.removeChild(sc); }
+  window[cb] = function(data) {
+    cleanup();
     if (data && data.games) {
       allGames = data.games.sort((a,b) => a.game - b.game);
-      // Now load player stats
-      loadPlayerStats();
+      renderSelector();
+      renderAll();
+      document.getElementById('updated').textContent = 'Aktualizováno: ' + new Date().toLocaleString('cs-CZ');
     } else {
       showError('Žádná data.');
     }
   };
-  sc1.src = API_URL + '?callback=' + cb1 + '&mode=coach&team=' + encodeURIComponent(TEAM_NAME);
-  document.head.appendChild(sc1);
-}
-
-function loadPlayerStats() {
-  const cb2 = 'cb_players_' + Date.now();
-  const sc2 = document.createElement('script');
-  const tm2 = setTimeout(() => { delete window[cb2]; if(sc2.parentNode) sc2.parentNode.removeChild(sc2); renderSelector(); renderAll(); }, 10000);
-  
-  window[cb2] = function(data) {
-    clearTimeout(tm2);
-    delete window[cb2];
-    if(sc2.parentNode) sc2.parentNode.removeChild(sc2);
-    if (data && data.players) playerStats = data.players;
-    renderSelector();
-    renderAll();
-    document.getElementById('updated').textContent = 'Aktualizováno: ' + new Date().toLocaleString('cs-CZ');
-  };
-  sc2.src = API_URL + '?callback=' + cb2 + '&team=' + encodeURIComponent(TEAM_NAME);
-  document.head.appendChild(sc2);
+  sc.src = API_URL + '?callback=' + cb + '&mode=coach&team=' + encodeURIComponent(TEAM_NAME);
+  document.head.appendChild(sc);
 }
 
 function showError(msg) {
-  document.getElementById('stats-root').innerHTML =
-    '<div class="error">' + msg + '</div><button class="retry-btn" onclick="loadData()">Zkusit znovu</button>';
+  document.getElementById('stats-root').innerHTML = '<div class="error">'+msg+'</div><button class="retry-btn" onclick="loadData()">Zkusit znovu</button>';
 }
 
 function renderSelector() {
   const el = document.getElementById('game-selector');
-  let html = '<button class="game-btn all' + (selectedGame==='all'?' active':'') + '" onclick="selectGame(\'all\')">Celá sezóna</button>';
+  let html = '<button class="game-btn all'+(selectedGame==='all'?' active':'')+'" onclick="selectGame(\'all\')">Celá sezóna</button>';
   allGames.forEach(g => {
     const active = selectedGame === g.game ? ' active' : '';
     const dateStr = g.date ? new Date(g.date).toLocaleDateString('cs-CZ') : '';
@@ -130,63 +104,38 @@ function selectGame(game) {
   renderAll();
 }
 
-function getGames() {
-  if (selectedGame === 'all') return allGames;
-  return allGames.filter(g => g.game === selectedGame);
-}
+function sum(arr, fn) { return arr.reduce((s,g) => s + (fn(g)||0), 0); }
 
 function renderAll() {
-  const games = getGames();
-  if (!games.length) {
-    document.getElementById('stats-root').innerHTML = '<div class="loading">Žádné záznamy.</div>';
-    return;
-  }
+  const games = selectedGame === 'all' ? allGames : allGames.filter(g => g.game === selectedGame);
+  if (!games.length) { document.getElementById('stats-root').innerHTML = '<div class="loading">Žádné záznamy.</div>'; return; }
 
-  // Agreguj data
-  let usTotal=0, themTotal=0;
-  let offDrives=[], defDrives=[];
-  let foulMap={}, confirm={c1:0,c2:0,nc1:0,nc2:0};
+  // Agreguj
+  const usTotal = sum(games, g => g.score.us);
+  const themTotal = sum(games, g => g.score.them);
+  const offTotal = sum(games, g => g.off.total);
+  const offTD = sum(games, g => g.off.td);
+  const defTotal = sum(games, g => g.def.total);
+  const defStop = sum(games, g => g.def.stop);
+  const offPct = offTotal > 0 ? Math.round(offTD/offTotal*100) : 0;
+  const defPct = defTotal > 0 ? Math.round(defStop/defTotal*100) : 0;
 
-  games.forEach(g => {
-    usTotal += g.score.us;
-    themTotal += g.score.them;
-    offDrives = offDrives.concat(g.offDrives||[]);
-    defDrives = defDrives.concat(g.defDrives||[]);
-    (g.fouls||[]).forEach(f => {
-      if (!foulMap[f.label]) foulMap[f.label] = {count:0,yards:0};
-      foulMap[f.label].count += f.count;
-      foulMap[f.label].yards += f.yards;
-    });
-    confirm.c1  += g.confirm.c1||0;
-    confirm.c2  += g.confirm.c2||0;
-    confirm.nc1 += g.confirm.nc1||0;
-    confirm.nc2 += g.confirm.nc2||0;
-  });
+  const c1 = sum(games, g => g.confirm.c1);
+  const att1 = sum(games, g => g.confirm.att1);
+  const c2 = sum(games, g => g.confirm.c2);
+  const att2 = sum(games, g => g.confirm.att2);
+  const c1pct = att1 > 0 ? Math.round(c1/att1*100) : 0;
+  const c2pct = att2 > 0 ? Math.round(c2/att2*100) : 0;
 
-  // Drivy
-  const offTotal = offDrives.filter(d=>d.result).length;
-  const offTD = offDrives.filter(d=>d.result==='td').length;
-  const offPct = offTotal>0 ? Math.round(offTD/offTotal*100) : 0;
-  const defTotal = defDrives.length;
-  const defStop = defDrives.filter(d=>d.result==='stop'||d.result==='manual').length;
-  const defPct = defTotal>0 ? Math.round(defStop/defTotal*100) : 0;
+  const oc1 = sum(games, g => g.oppConfirm.c1);
+  const oatt1 = sum(games, g => g.oppConfirm.att1);
+  const oc2 = sum(games, g => g.oppConfirm.c2);
+  const oatt2 = sum(games, g => g.oppConfirm.att2);
+  const def1pct = oatt1 > 0 ? Math.round((oatt1-oc1)/oatt1*100) : 0;
+  const def2pct = oatt2 > 0 ? Math.round((oatt2-oc2)/oatt2*100) : 0;
 
-  // Naše potvrzení z hráčských statistik
-  const wrPlayers = playerStats.filter(p => p.pos === 'wr');
-  const totalC1 = wrPlayers.reduce((s,p) => s+(p.stats.confirm1||0), 0);
-  const totalC2 = wrPlayers.reduce((s,p) => s+(p.stats.confirm2||0), 0);
-  const totalNC1 = wrPlayers.reduce((s,p) => s+(p.stats.noconfirm1||0), 0);
-  const totalNC2 = wrPlayers.reduce((s,p) => s+(p.stats.noconfirm2||0), 0);
-  const attOff1 = totalC1 + totalNC1;
-  const attOff2 = totalC2 + totalNC2;
-  const offC1pct = attOff1>0 ? Math.round(totalC1/attOff1*100) : 0;
-  const offC2pct = attOff2>0 ? Math.round(totalC2/attOff2*100) : 0;
-
-  // Potvrzení soupeře
-  const att1 = confirm.c1 + confirm.nc1;
-  const att2 = confirm.c2 + confirm.nc2;
-  const def1pct = att1>0 ? Math.round(confirm.nc1/att1*100) : 0;
-  const def2pct = att2>0 ? Math.round(confirm.nc2/att2*100) : 0;
+  const foulCount = sum(games, g => g.fouls.count);
+  const foulYards = sum(games, g => g.fouls.yards);
 
   let html = '';
 
@@ -202,44 +151,35 @@ function renderAll() {
 
   // Drivy
   if (offTotal || defTotal) {
-    html += '<div class="section">';
-    html += '<div class="section-title">Drivy</div>';
-    html += '<div class="drive-bar"><div class="drive-label">Útok</div><div class="drive-track"><div class="drive-fill" style="width:'+offPct+'%;background:#1a56db;">'+offPct+'%</div></div><div class="drive-pct good">'+offTD+'/'+offTotal+'</div></div>';
-    html += '<div class="drive-bar"><div class="drive-label">Obrana</div><div class="drive-track"><div class="drive-fill" style="width:'+defPct+'%;background:#0a7c3e;">'+defPct+'%</div></div><div class="drive-pct good">'+defStop+'/'+defTotal+'</div></div>';
+    html += '<div class="section"><div class="section-title">Drivy</div>';
+    html += '<div class="bar-row"><div class="bar-label">Útok</div><div class="bar-track"><div class="bar-fill" style="width:'+offPct+'%;background:#1a56db;">'+offPct+'%</div></div><div class="bar-pct good fw">'+offTD+'/'+offTotal+'</div></div>';
+    html += '<div class="bar-row"><div class="bar-label">Obrana</div><div class="bar-track"><div class="bar-fill" style="width:'+defPct+'%;background:#0a7c3e;">'+defPct+'%</div></div><div class="bar-pct good fw">'+defStop+'/'+defTotal+'</div></div>';
     html += '</div>';
   }
 
   // Naše potvrzení
-  if (attOff1+attOff2 > 0) {
-    html += '<div class="section">';
-    html += '<div class="section-title">Útok — úspěšnost potvrzení</div>';
-    html += '<table><thead><tr><th>Typ</th><th class="num">Úspěšné/Pokusy</th><th class="num">%</th></tr></thead><tbody>';
-    if(attOff1>0) html += '<tr><td>Za 1 bod</td><td class="num">'+totalC1+'/'+attOff1+'</td><td class="num '+(offC1pct>=50?'good':'warn')+'">'+offC1pct+'%</td></tr>';
-    if(attOff2>0) html += '<tr><td>Za 2 body</td><td class="num">'+totalC2+'/'+attOff2+'</td><td class="num '+(offC2pct>=50?'good':'warn')+'">'+offC2pct+'%</td></tr>';
+  if (att1 + att2 > 0) {
+    html += '<div class="section"><div class="section-title">Útok — úspěšnost potvrzení</div>';
+    html += '<table><thead><tr><th>Typ</th><th class="num">Úspěšné</th><th class="num">Pokusy</th><th class="num">%</th></tr></thead><tbody>';
+    if(att1>0) html += '<tr><td>Za 1 bod</td><td class="num good fw">'+c1+'</td><td class="num">'+att1+'</td><td class="num '+(c1pct>=50?'good':'warn')+' fw">'+c1pct+'%</td></tr>';
+    if(att2>0) html += '<tr><td>Za 2 body</td><td class="num good fw">'+c2+'</td><td class="num">'+att2+'</td><td class="num '+(c2pct>=50?'good':'warn')+' fw">'+c2pct+'%</td></tr>';
     html += '</tbody></table></div>';
   }
 
-  // Potvrzení soupeře
-  if (att1+att2 > 0) {
-    html += '<div class="section">';
-    html += '<div class="section-title">Obrana — ubráněná potvrzení soupeře</div>';
-    html += '<table><thead><tr><th>Typ</th><th class="num">Ubráněno/Pokusy</th><th class="num">%</th></tr></thead><tbody>';
-    html += '<tr><td>Za 1 bod</td><td class="num">'+confirm.nc1+'/'+att1+'</td><td class="num '+(def1pct>=50?'good':'warn')+'">'+def1pct+'%</td></tr>';
-    html += '<tr><td>Za 2 body</td><td class="num">'+confirm.nc2+'/'+att2+'</td><td class="num '+(def2pct>=50?'good':'warn')+'">'+def2pct+'%</td></tr>';
+  // Obrana soupeřova potvrzení
+  if (oatt1 + oatt2 > 0) {
+    html += '<div class="section"><div class="section-title">Obrana — ubráněná potvrzení soupeře</div>';
+    html += '<table><thead><tr><th>Typ</th><th class="num">Ubráněno</th><th class="num">Pokusy</th><th class="num">%</th></tr></thead><tbody>';
+    if(oatt1>0) html += '<tr><td>Za 1 bod</td><td class="num good fw">'+(oatt1-oc1)+'</td><td class="num">'+oatt1+'</td><td class="num '+(def1pct>=50?'good':'warn')+' fw">'+def1pct+'%</td></tr>';
+    if(oatt2>0) html += '<tr><td>Za 2 body</td><td class="num good fw">'+(oatt2-oc2)+'</td><td class="num">'+oatt2+'</td><td class="num '+(def2pct>=50?'good':'warn')+' fw">'+def2pct+'%</td></tr>';
     html += '</tbody></table></div>';
   }
 
   // Fauly
-  const foulEntries = Object.entries(foulMap).filter(([,v])=>v.count>0);
-  if (foulEntries.length) {
-    const totalYards = foulEntries.reduce((s,[,v])=>s+v.yards,0);
-    html += '<div class="section">';
-    html += '<div class="section-title">Fauly</div>';
-    html += '<table><thead><tr><th>Faul</th><th class="num">Počet</th><th class="num">Yardy</th></tr></thead><tbody>';
-    foulEntries.forEach(([label, v]) => {
-      html += '<tr><td>'+label+'</td><td class="num bad">'+v.count+'</td><td class="num bad">-'+v.yards+'y</td></tr>';
-    });
-    html += '<tr style="border-top:1px solid #ddd;font-weight:700;"><td>Celkem</td><td></td><td class="num bad">-'+totalYards+'y</td></tr>';
+  if (foulCount > 0) {
+    html += '<div class="section"><div class="section-title">Fauly</div>';
+    html += '<table><thead><tr><th>Celkem faulů</th><th class="num">Yardy</th></tr></thead><tbody>';
+    html += '<tr><td class="bad fw">'+foulCount+'</td><td class="num bad fw">-'+foulYards+'y</td></tr>';
     html += '</tbody></table></div>';
   }
 
