@@ -1217,8 +1217,15 @@ function sendGame(){
   // Google Apps Script nepodporuje CORS pro POST s JSON hlavičkami
   // Řešení: posíláme data jako URL parametr přes GET (no-cors safe)
   const d=teamData();
+  if(!d){alert("Žádný tým vybrán.");btn.disabled=false;btn.textContent="Odeslat zápas na web";return;}
   const s=calcScore();
-  const opponentName=d?d.opponentName||'':'';
+  const opponentName=d.opponentName||'';
+  // Explicitně načti data
+  const offDrivesData = d.offDrives||[];
+  const defDrivesData = d.defDrives||[];
+  const foulsData = d.fouls||{};
+  const oppData = d.opp||{};
+  console.log('Debug - skóre:', s.us, s.them, 'drivy:', offDrivesData.length, defDrivesData.length, 'fouly:', Object.keys(foulsData).length);
 
   // Rozdělíme na dva requesty - hráčská data a trenérská data
   function sendJSONP(payload, onSuccess, onError) {
@@ -1263,12 +1270,12 @@ function sendGame(){
     team: currentTeam||'Neznámý tým',
     gameNumber: data.gameNumber||1,
     opponent: opponentName,
-    players: [], // prázdné - jen trenérská data
+    players: [],
     ourScore: s.us,
-    opp: d?d.opp:{},
-    offDrives: d?d.offDrives:[],
-    defDrives: d?d.defDrives:[],
-    fouls: d?d.fouls:{}
+    opp: oppData,
+    offDrives: offDrivesData,
+    defDrives: defDrivesData,
+    fouls: foulsData
   };
 
   sendJSONP(playerPayload, function(){
