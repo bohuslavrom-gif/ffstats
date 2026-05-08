@@ -1219,49 +1219,71 @@ function sendGame(){
   const d=teamData();
   const s=calcScore();
   const opponentName=d?d.opponentName||'':'';
-  const payload=encodeURIComponent(JSON.stringify({
-    players:data.players,
-    gameNumber:data.gameNumber||1,
-    drive:data.drive,
-    team:currentTeam||'Neznámý tým',
+
+  // Rozdělíme na dva requesty - hráčská data a trenérská data
+  function sendJSONP(payload, onSuccess, onError) {
+    const cbName = 'sendCb_' + Date.now();
+    const sc = document.createElement('script');
+    const tm = setTimeout(()=>{
+      delete window[cbName];
+      if(sc.parentNode) sc.parentNode.removeChild(sc);
+      onError('Timeout');
+    }, 20000);
+    window[cbName] = function(resp){
+      clearTimeout(tm);
+      delete window[cbName];
+      if(sc.parentNode) sc.parentNode.removeChild(sc);
+      if(resp && resp.status === 'ok') onSuccess();
+      else onError(resp ? resp.message : 'Neznámá chyba');
+    };
+    sc.onerror = function(){
+      clearTimeout(tm);
+      delete window[cbName];
+      onError('Script error');
+    };
+    sc.src = API_URL + '?callback=' + cbName + '&data=' + encodeURIComponent(JSON.stringify(payload));
+    document.head.appendChild(sc);
+  }
+
+  // 1. Hráčská data
+  const playerPayload = {
+    team: currentTeam||'Neznámý tým',
+    gameNumber: data.gameNumber||1,
     opponent: opponentName,
+    players: data.players
+  };
+
+  // 2. Trenérská data (bez hráčů - menší payload)
+  const coachPayload = {
+    team: currentTeam||'Neznámý tým',
+    gameNumber: data.gameNumber||1,
+    opponent: opponentName,
+    players: [], // prázdné - jen trenérská data
     ourScore: s.us,
     opp: d?d.opp:{},
     offDrives: d?d.offDrives:[],
     defDrives: d?d.defDrives:[],
     fouls: d?d.fouls:{}
-  }));
-  const url=API_URL+'?data='+payload;
+  };
 
-  // JSONP přístup - spolehlivější pro Apps Script
-  const cbName = 'sendCb_' + Date.now();
-  const sc = document.createElement('script');
-  const tm = setTimeout(()=>{
-    delete window[cbName];
-    if(sc.parentNode) sc.parentNode.removeChild(sc);
+  sendJSONP(playerPayload, function(){
+    // Hráčská data odeslána, teď trenérská
+    sendJSONP(coachPayload, function(){
+      data.gameNumber=(data.gameNumber||1)+1;
+      save();
+      btn.textContent="Odesláno!";
+      btn.style.background="#1a56db";
+      setTimeout(()=>{btn.disabled=false;btn.textContent="Odeslat zápas na web";btn.style.background="";},3000);
+    }, function(err){
+      btn.disabled=false;
+      btn.textContent="Odeslat zápas na web";
+      alert("Chyba při odesílání trenérských dat: "+err);
+    });
+  }, function(err){
     btn.disabled=false;
     btn.textContent="Odeslat zápas na web";
-    alert("Chyba: Timeout při odesílání.");
-  }, 15000);
-  window[cbName] = function(resp){
-    clearTimeout(tm);
-    delete window[cbName];
-    if(sc.parentNode) sc.parentNode.removeChild(sc);
-    data.gameNumber=(data.gameNumber||1)+1;
-    save();
-    btn.textContent="Odesláno!";
-    btn.style.background="#1a56db";
-    setTimeout(()=>{btn.disabled=false;btn.textContent="Odeslat zápas na web";btn.style.background="";},3000);
-  };
-  sc.onerror = function(){
-    clearTimeout(tm);
-    delete window[cbName];
-    btn.disabled=false;
-    btn.textContent="Odeslat zápas na web";
-    alert("Chyba při odesílání.");
-  };
-  sc.src = url + '&callback=' + cbName;
-  document.head.appendChild(sc);
+    alert("Chyba při odesílání: "+err);
+  });
 }
 
 function handleWrInt(){
